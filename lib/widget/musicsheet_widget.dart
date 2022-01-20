@@ -1,12 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
 import 'package:haring4/controller/data_controller.dart';
+import 'package:haring4/painter/painter.dart';
+import 'package:haring4/page/sheet_modification_page.dart';
+
 
 // Global Variables
 
-final DataController contData = Get.put(DataController());
 final ScrollController contScroll = ScrollController();
 final List<GlobalKey> globalKeys = [];
 
@@ -99,6 +100,7 @@ class SheetScrollViewState extends State<SheetScrollView> {
   Widget build(BuildContext context) {
 
     return SingleChildScrollView(
+      physics: contData.selectedNum < 0 ? null : const NeverScrollableScrollPhysics(),
       controller: contScroll,
       child: Center(
         child: Column(
@@ -129,11 +131,14 @@ class MusicSheetWidget extends StatefulWidget {
 
 class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
+  late List<DrawingArea> points;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!
         .addPostFrameCallback((_) => focusSheet(contData.lastNum.value));
+     points = widget.datum.points;
   }
 
 
@@ -150,15 +155,77 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     return Container(
       margin: EdgeInsets.symmetric(vertical: marginHeight,),
       child: GestureDetector(
+        onTap: () {
+          setState(() {
+            Offset noPoint = const Offset(-100.0, -100.0);
+            if (widget.datum.isSelected) {
+              points.add(DrawingArea(
+                point: noPoint,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = Colors.black
+                  ..strokeWidth = 2.0
+                ),
+              );
+              widget.datum.points = points;
+            }
+          });
+        },
         onDoubleTap: () {
           parent!.setState(() {
             _toggleSelection(widget.datum.num);
+            widget.datum.points = points;
+          });
+        },
+        onPanDown: (details) {
+          parent!.setState(() {
+            if (widget.datum.isSelected) {
+              points.add(DrawingArea(
+                point: details.localPosition,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = Colors.black
+                  ..strokeWidth = 2.0
+                )
+              );
+            }
+          });
+        },
+        onPanUpdate: (details) {
+          parent!.setState(() {
+            if (widget.datum.isSelected) {
+              points.add(DrawingArea(
+                point: details.localPosition,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = Colors.black
+                  ..strokeWidth = 2.0
+                )
+              );
+            }
+          });
+        },
+        onPanEnd: (details) {
+          parent!.setState(() {
+            Offset noPoint = const Offset(-100.0, -100.0);
+            points.add(DrawingArea(
+              point: noPoint,
+              areaPaint: Paint()
+                ..strokeCap = StrokeCap.round
+                ..isAntiAlias = true
+                ..color = Colors.black
+                ..strokeWidth = 2.0
+              ),
+            );
           });
         },
         child: AnimatedContainer(
-          key: globalKeys[widget.datum.num],
           width: sheetWidth,
           height: sheetHeight,
+          key: globalKeys[widget.datum.num],
           decoration: BoxDecoration(
             color: widget.datum.isSelected ?
             Palette.themeColor1.withOpacity(.5) :
@@ -172,21 +239,37 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
           duration: const Duration(milliseconds: 300),
           child: Stack(
             children: [
-              if (widget.isLeader)
-                Positioned(
-                  right: 0.0,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
+              Positioned(
+                child: Container(
+                  width: sheetWidth,
+                  height: sheetHeight,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                    child: CustomPaint(
+                      painter: MyCustomPainter(
+                        points: points,
+                        color: Colors.black,
+                        strokeWidth: 2.0,
+                      ),
                     ),
-                    onPressed: () {
-                      parent!.setState(() {
-                        _delImage(widget.datum.num);
-                      });
-                    },
                   ),
                 ),
+              ),
+              if (widget.isLeader)
+              Positioned(
+                right: 0.0,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    parent!.setState(() {
+                      _delImage(widget.datum.num);
+                    });
+                  },
+                ),
+              ),
               Positioned(
                 child: Center(
                   child: Text(

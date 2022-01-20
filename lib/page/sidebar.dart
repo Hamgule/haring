@@ -53,7 +53,6 @@ class _SidebarState extends State<Sidebar> {
       GestureDetector(
         key: ValueKey('${datum.num}'),
         onTap: () {
-          print(globalKeys[datum.num].currentContext);
           focusSheet(datum.num);
           Get.back();
         },
