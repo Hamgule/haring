@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
+import 'package:haring4/painter/painter.dart';
 
 class Datum {
   int num = 0;
   bool isSelected = false;
-
+  List<DrawingArea> points = [];
   Datum({this.num = 0, this.isSelected = false});
 
   void toggleSelection() {
