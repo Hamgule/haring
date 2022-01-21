@@ -9,24 +9,23 @@ import 'package:haring4/page/sheet_modification_page.dart';
 // Global Variables
 
 final ScrollController contScroll = ScrollController();
-final List<GlobalKey> globalKeys = [];
+final Map<int, GlobalKey> globalKeys = {};
 
 double screenHeight = 1.0;
 int currentScrollNum = 0;
 
 // Global Methods
 
-void _toggleSelection(int num) {
-  contData.toggleSelection(num);
-}
+void _toggleSelection(int num) => contData.toggleSelection(num);
 
 void _delImage(int num) {
+  globalKeys.remove(num);
   contData.delDatum(num);
 }
 
 void focusSheet(int num) {
   Scrollable.ensureVisible(
-    globalKeys[num].currentContext!,
+    globalKeys[num]!.currentContext!,
     duration: const Duration(milliseconds: 600),
     curve: Curves.easeInOut,
   );
@@ -91,6 +90,11 @@ class SheetScrollViewState extends State<SheetScrollView> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void scrollListener() async {
     currentScrollNum = (contScroll.offset / screenHeight).round();
     // print(currentScrollNum);
@@ -131,20 +135,21 @@ class MusicSheetWidget extends StatefulWidget {
 
 class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
-  late List<DrawingArea> points;
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!
-        .addPostFrameCallback((_) => focusSheet(contData.lastNum.value));
-     points = widget.datum.points;
-  }
 
+    if (contData.isCreateEvent.value) {
+      WidgetsBinding.instance!
+        .addPostFrameCallback((_) => focusSheet(contData.lastNum.value));
+      contData.isCreateEvent(false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    SheetScrollViewState? parent = context.findAncestorStateOfType<SheetScrollViewState>();
+    SheetModificationPageState? parent = context
+        .findAncestorStateOfType<SheetModificationPageState>();
 
     Size size = MediaQuery.of(context).size;
     screenHeight = size.height - AppBar().preferredSize.height;
@@ -159,7 +164,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
           setState(() {
             Offset noPoint = const Offset(-100.0, -100.0);
             if (widget.datum.isSelected) {
-              points.add(DrawingArea(
+              widget.datum.points.add(DrawingArea(
                 point: noPoint,
                 areaPaint: Paint()
                   ..strokeCap = StrokeCap.round
@@ -168,20 +173,30 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   ..strokeWidth = 2.0
                 ),
               );
-              widget.datum.points = points;
             }
           });
         },
         onDoubleTap: () {
           parent!.setState(() {
+            Offset noPoint = const Offset(-100.0, -100.0);
+            if (widget.datum.isSelected) {
+              widget.datum.points.add(DrawingArea(
+                point: noPoint,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = Colors.black
+                  ..strokeWidth = 2.0
+                ),
+              );
+            }
             _toggleSelection(widget.datum.num);
-            widget.datum.points = points;
           });
         },
         onPanDown: (details) {
           parent!.setState(() {
             if (widget.datum.isSelected) {
-              points.add(DrawingArea(
+              widget.datum.points.add(DrawingArea(
                 point: details.localPosition,
                 areaPaint: Paint()
                   ..strokeCap = StrokeCap.round
@@ -196,7 +211,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
         onPanUpdate: (details) {
           parent!.setState(() {
             if (widget.datum.isSelected) {
-              points.add(DrawingArea(
+              widget.datum.points.add(DrawingArea(
                 point: details.localPosition,
                 areaPaint: Paint()
                   ..strokeCap = StrokeCap.round
@@ -211,7 +226,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
         onPanEnd: (details) {
           parent!.setState(() {
             Offset noPoint = const Offset(-100.0, -100.0);
-            points.add(DrawingArea(
+            widget.datum.points.add(DrawingArea(
               point: noPoint,
               areaPaint: Paint()
                 ..strokeCap = StrokeCap.round
@@ -247,7 +262,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                     borderRadius: const BorderRadius.all(Radius.circular(20.0)),
                     child: CustomPaint(
                       painter: MyCustomPainter(
-                        points: points,
+                        points: widget.datum.points,
                         color: Colors.black,
                         strokeWidth: 2.0,
                       ),

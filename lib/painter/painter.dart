@@ -1,9 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:haring4/controller/data_controller.dart';
-import 'package:haring4/page/sheet_modification_page.dart';
-import 'package:haring4/widget/musicsheet_widget.dart';
 
 
 class DrawingArea {
@@ -19,8 +16,11 @@ class MyCustomPainter extends CustomPainter {
   double strokeWidth;
   Offset noPoint = const Offset(-100.0, -100.0);
 
-  MyCustomPainter(
-      {required this.points, required this.color, required this.strokeWidth});
+  MyCustomPainter({
+    required this.points,
+    required this.color,
+    required this.strokeWidth
+  });
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -9,8 +9,10 @@ import 'package:haring4/widget/musicsheet_widget.dart';
 final DataController contData = Get.put(DataController());
 final SidebarController contSidebar = Get.put(SidebarController());
 
+void _deselectAll() => contData.deselectAll();
+
 void _addImage(int num) {
-  globalKeys.add(GlobalKey());
+  globalKeys[num] = GlobalKey();
   contData.addDatum(Datum(num: num));
 }
 
@@ -53,6 +55,18 @@ class SheetModificationPageState extends State<SheetModificationPage> {
           },
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              contData.selectedNum.value < 0 ?
+              Icons.check_box_outline_blank :
+              Icons.check_box,
+            ),
+            onPressed: () {
+              setState(() {
+                _deselectAll();
+              });
+            },
+          ),
           if (widget.isLeader)
             IconButton(
               icon: const Icon(
@@ -61,6 +75,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
               onPressed: () {
                 setState(() {
                   _addImage(contData.lastNum.value + 1);
+                  contData.isCreateEvent(true);
                 });
               },
             ),
@@ -91,7 +106,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             child: GestureDetector(
               onTap: () {
                 if (currentScrollNum > 0) {
-                  focusSheet((currentScrollNum - 1) * 2);
+                  focusSheet(contData.getNumberList()[(currentScrollNum - 1) * 2]);
                 }
               },
               onTapDown: (value) {
@@ -134,8 +149,8 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             height: sideButtonHeight,
             child: GestureDetector(
               onTap: () {
-                if (currentScrollNum + 1 <= contData.lastNum.value / 2) {
-                  focusSheet((currentScrollNum + 1) * 2);
+                if (contData.getNumberList()[currentScrollNum + 1] <= contData.lastNum.value / 2) {
+                  focusSheet(contData.getNumberList()[(currentScrollNum + 1) * 2]);
                 }
               },
               onTapDown: (value) {

@@ -17,6 +17,7 @@ class DataController extends GetxController {
   RxList<Datum> imageData = RxList<Datum>([]);
   RxInt selectedNum = (-1).obs;
   RxInt lastNum = (-1).obs;
+  RxBool isCreateEvent = false.obs;
 
   void setData(RxList<Datum> imageData) {
     this.imageData(imageData);
@@ -44,6 +45,12 @@ class DataController extends GetxController {
 
   void delDatum(int num) {
     imageData.removeWhere((datum) => datum.num == num);
+  }
+
+  List<int> getNumberList() {
+    List<int> numberList = [];
+    imageData.forEach((datum) => numberList.add(datum.num));
+    return numberList;
   }
 
 // methods for Debugging
