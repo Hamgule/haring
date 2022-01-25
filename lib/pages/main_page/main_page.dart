@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:haring4/config/palette.dart';
-import 'join_page.dart';
-import 'create_page.dart';
+import 'package:haring4/pages/create_page/create_page.dart';
+import 'package:haring4/pages/join_page/join_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -64,12 +64,12 @@ class _MainPageState extends State<MainPage> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                SizedBox(
                   width: 200.0,
                   height: 50.0,
                   child: OutlinedButton(
                     onPressed: () {
-                      Get.to(() => const CreatePage());
+                      Get.to(const CreatePage());
                     },
                     child: const Text(
                       'create',
@@ -92,14 +92,14 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 const SizedBox(
-                    width: 30,
+                  width: 30,
                 ),
-                Container(
+                SizedBox(
                   width: 200.0,
                   height: 50.0,
                   child: OutlinedButton(
                     onPressed: () {
-                      Get.to(() => const JoinPage());
+                      Get.to(const JoinPage());
                     },
                     child: const Text(
                       'join',

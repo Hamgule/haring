@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring4/page/main_page.dart';
+import 'package:haring4/pages/main_page/main_page.dart';
 
 void main() {
   runApp(const MyApp());

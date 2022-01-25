@@ -3,8 +3,8 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
-import 'package:haring4/page/sheet_modification_page.dart';
-import 'package:haring4/painter/painter.dart';
+import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 
 class SlideBar extends StatefulWidget {
   final Axis axis;
@@ -27,6 +27,7 @@ class _SlideBarState extends State<SlideBar>
   Animation<double>? _anim;
 
   bool check = false;
+  bool eraseMode = false;
 
   @override
   void initState() {
@@ -47,6 +48,13 @@ class _SlideBarState extends State<SlideBar>
     super.dispose();
   }
 
+  void getEraseMode() {
+    if (sheetCont.selectedNum < 0) return;
+    eraseMode = sheetCont.getDataWhere(
+      sheetCont.selectedNum,
+    ).paint.eraseMode;
+  }
+
   void selectColor() {
     showDialog(
       context: context,
@@ -55,20 +63,14 @@ class _SlideBarState extends State<SlideBar>
           title: const Text('Color Chooser'),
           content: SingleChildScrollView(
             child: ColorPicker(
-              pickerColor: chosen.selectedColor,
-              onColorChanged: (color) {
-                setState(() {
-                  chosen.selectedColor = color;
-                });
-              },
+              pickerColor: painterCont.color,
+              onColorChanged: (color) => setState(() => painterCont.setColor(color)),
               pickerAreaHeightPercent: 0.8,
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Get.back();
-              },
+              onPressed: () => Get.back(),
               child: const Text("Close"),
             ),
           ],
@@ -89,10 +91,10 @@ class _SlideBarState extends State<SlideBar>
       IconButton(
         onPressed: () {
           parent!.setState(() {
-            if (contData.selectedNum < 0) return;
-            contData.getDataWhere(
-                contData.selectedNum.value,
-            ).undo();
+            if (sheetCont.selectedNum < 0) return;
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.undo();
           });
         },
         icon: Icon(
@@ -104,10 +106,10 @@ class _SlideBarState extends State<SlideBar>
       IconButton(
         onPressed: () {
           parent!.setState(() {
-            if (contData.selectedNum < 0) return;
-            contData.getDataWhere(
-                contData.selectedNum.value,
-            ).redo();
+            if (sheetCont.selectedNum < 0) return;
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.redo();
           });
         },
         icon: Icon(
@@ -118,8 +120,15 @@ class _SlideBarState extends State<SlideBar>
       ),
       GestureDetector(
         onTap: () {
-          selectColor();
+          parent!.setState(() {
+            if (sheetCont.selectedNum < 0) return;
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.setEraseMode(false);
+            eraseMode = false;
+          });
         },
+        onDoubleTap: () => selectColor(),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -128,17 +137,17 @@ class _SlideBarState extends State<SlideBar>
                 width: 66.0,
                 height: 66.0,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: eraseMode ? Colors.white : Palette.themeColor1,
                   borderRadius: BorderRadius.circular(50.0),
                 ),
               ),
             ),
             Positioned(
               child: Container(
-                width: chosen.strokeWidth,
-                height: chosen.strokeWidth,
+                width: painterCont.size,
+                height: painterCont.size,
                 decoration: BoxDecoration(
-                  color: chosen.selectedColor,
+                  color: painterCont.color,
                   borderRadius: BorderRadius.circular(50.0),
                 ),
               ),
@@ -149,30 +158,41 @@ class _SlideBarState extends State<SlideBar>
       Slider(
         min: 2.0,
         max: 60.0,
-        value: chosen.strokeWidth,
+        value: painterCont.size,
         inactiveColor: Colors.white,
         activeColor: Palette.themeColor1,
         onChanged: (value) {
           parent!.setState(() {
-            chosen.strokeWidth = value;
+            painterCont.setSize(value);
           });
         }
       ),
-      IconButton(
-        onPressed: () {
+      InkWell(
+        onTap: () {
           parent!.setState(() {
-            if (contData.selectedNum.value < 0) return;
-            contData.getDataWhere(
-              contData.selectedNum.value,
-            ).points.clear();
+            if (sheetCont.selectedNum < 0) return;
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.setEraseMode(true);
+            eraseMode = true;
           });
         },
-        icon: Container(
+        onLongPress: () {
+          parent!.setState(() {
+            if (sheetCont.selectedNum < 0) return;
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.eraseAll();
+          });
+        },
+        child: SizedBox(
           width: iconSize,
           height: iconSize,
           child: SvgPicture.asset(
             'assets/icons/eraser.svg',
-            color: Colors.white,
+            color: eraseMode ?
+              Palette.themeColor1 :
+              Colors.white,
           ),
         ),
       ),

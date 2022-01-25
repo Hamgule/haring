@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
-import 'package:haring4/page/leader_page.dart';
-
+import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring4/pages/sheet_modification_page/leader_page.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({Key? key}) : super(key: key);
@@ -17,45 +17,29 @@ class _CreatePageState extends State<CreatePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.0),
-        elevation: 0.0,
-        iconTheme: const IconThemeData(
-          color: Palette.themeColor1,
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-          ),
-          onPressed: () {
-            Get.back();
-          },
-        ),
-      ),
+      appBar: myAppBar,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              child: const Text(
-                '사진을 추가하세요',
-                style: TextStyle(
-                  fontSize: 30.0,
-                  fontFamily: 'NanumGothicRegular',
-                  color: Palette.themeColor1,
-                  fontWeight: FontWeight.bold,
-                ),
+            const Text(
+              '사진을 추가하세요',
+              style: TextStyle(
+                fontSize: 30.0,
+                fontFamily: 'NanumGothicRegular',
+                color: Palette.themeColor1,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(
               height: 10.0,
             ),
-            Container(
+            SizedBox(
               width: 300.0,
               height: 300.0,
               child: OutlinedButton(
                 onPressed: () {
-                  Get.to(() => LeaderPage());
+                  Get.to(const LeaderPage());
                 },
                 child: const Icon(
                   Icons.add,
