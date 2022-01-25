@@ -2,6 +2,25 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+// global variables
+
+final BrushChosen chosen = BrushChosen();
+final DrawingArea endOfPoint = DrawingArea(
+  point: const Offset(-100.0, -100.0),
+  areaPaint: Paint()
+    ..strokeCap = StrokeCap.round
+    ..isAntiAlias = true
+    ..color = chosen.selectedColor
+    ..strokeWidth = chosen.strokeWidth
+);
+
+// classes
+
+class BrushChosen {
+  @override
+  Color selectedColor = Colors.black;
+  double strokeWidth = 2.0;
+}
 
 class DrawingArea {
   late Offset point;

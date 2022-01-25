@@ -5,6 +5,9 @@ import 'package:haring4/controller/data_controller.dart';
 import 'package:haring4/controller/sidebar_controller.dart';
 import 'package:haring4/page/sidebar.dart';
 import 'package:haring4/widget/musicsheet_widget.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:haring4/painter/painter.dart';
+import 'package:haring4/widget/slidebar.dart';
 
 final DataController contData = Get.put(DataController());
 final SidebarController contSidebar = Get.put(SidebarController());
@@ -17,7 +20,8 @@ void _addImage(int num) {
 }
 
 class SheetModificationPage extends StatefulWidget {
-  const SheetModificationPage({Key? key, required this.isLeader}) : super(key: key);
+  const SheetModificationPage({Key? key, required this.isLeader})
+      : super(key: key);
 
   final bool isLeader;
 
@@ -26,13 +30,46 @@ class SheetModificationPage extends StatefulWidget {
 }
 
 class SheetModificationPageState extends State<SheetModificationPage> {
-
   bool leftButtonDown = false;
   bool rightButtonDown = false;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+  }
 
+  void selectColor() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Color Chooser'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: chosen.selectedColor,
+              onColorChanged: (color) {
+                setState(() {
+                  chosen.selectedColor = color;
+                });
+              },
+              pickerAreaHeightPercent: 0.8,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     final sideButtonWidth = size.width * 0.1;
     final sideButtonHeight = size.height * 0.9;
@@ -57,9 +94,9 @@ class SheetModificationPageState extends State<SheetModificationPage> {
         actions: [
           IconButton(
             icon: Icon(
-              contData.selectedNum.value < 0 ?
-              Icons.check_box_outline_blank :
-              Icons.check_box,
+              contData.selectedNum.value < 0
+                  ? Icons.check_box_outline_blank
+                  : Icons.check_box,
             ),
             onPressed: () {
               setState(() {
@@ -106,7 +143,9 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             child: GestureDetector(
               onTap: () {
                 if (currentScrollNum > 0) {
-                  focusSheet(contData.getNumberList()[(currentScrollNum - 1) * 2]);
+                  focusSheet(
+                    contData.getNumberList()[(currentScrollNum - 1) * 2]
+                  );
                 }
               },
               onTapDown: (value) {
@@ -149,8 +188,10 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             height: sideButtonHeight,
             child: GestureDetector(
               onTap: () {
-                if (contData.getNumberList()[currentScrollNum + 1] <= contData.lastNum.value / 2) {
-                  focusSheet(contData.getNumberList()[(currentScrollNum + 1) * 2]);
+                if (contData.getNumberList()[currentScrollNum + 1] <=
+                    contData.lastNum.value / 2) {
+                  focusSheet(
+                      contData.getNumberList()[(currentScrollNum + 1) * 2]);
                 }
               },
               onTapDown: (value) {
@@ -186,17 +227,15 @@ class SheetModificationPageState extends State<SheetModificationPage> {
               ),
             ),
           ),
+          Positioned(
+            right: 0,
+            left: 0,
+            bottom: 20.0,
+            child: SlideBar(
+              cb: (int i) => print(i),
+            ),
+          ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-          });
-        },
-        child: const Icon(
-          Icons.brush,
-        ),
-        backgroundColor: Palette.themeColor1,
       ),
       endDrawer: Sidebar(isLeader: widget.isLeader),
     );
