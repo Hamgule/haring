@@ -5,7 +5,6 @@ import 'package:haring4/controller/data_controller.dart';
 import 'package:haring4/painter/painter.dart';
 import 'package:haring4/page/sheet_modification_page.dart';
 
-
 // Global Variables
 
 final ScrollController contScroll = ScrollController();
@@ -135,6 +134,8 @@ class MusicSheetWidget extends StatefulWidget {
 
 class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
+  late List<DrawingArea> _tempLine;
+
   @override
   void initState() {
     super.initState();
@@ -144,6 +145,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
         .addPostFrameCallback((_) => focusSheet(contData.lastNum.value));
       contData.isCreateEvent(false);
     }
+
+    _tempLine = [];
   }
 
   @override
@@ -160,81 +163,54 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     return Container(
       margin: EdgeInsets.symmetric(vertical: marginHeight,),
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            Offset noPoint = const Offset(-100.0, -100.0);
-            if (widget.datum.isSelected) {
-              widget.datum.points.add(DrawingArea(
-                point: noPoint,
-                areaPaint: Paint()
-                  ..strokeCap = StrokeCap.round
-                  ..isAntiAlias = true
-                  ..color = Colors.black
-                  ..strokeWidth = 2.0
-                ),
-              );
-            }
-          });
-        },
+
         onDoubleTap: () {
           parent!.setState(() {
-            Offset noPoint = const Offset(-100.0, -100.0);
-            if (widget.datum.isSelected) {
-              widget.datum.points.add(DrawingArea(
-                point: noPoint,
-                areaPaint: Paint()
-                  ..strokeCap = StrokeCap.round
-                  ..isAntiAlias = true
-                  ..color = Colors.black
-                  ..strokeWidth = 2.0
-                ),
-              );
-            }
             _toggleSelection(widget.datum.num);
           });
         },
-        onPanDown: (details) {
+        onTapDown: (details) {
           parent!.setState(() {
             if (widget.datum.isSelected) {
-              widget.datum.points.add(DrawingArea(
+              DrawingArea point = DrawingArea(
                 point: details.localPosition,
                 areaPaint: Paint()
                   ..strokeCap = StrokeCap.round
                   ..isAntiAlias = true
-                  ..color = Colors.black
-                  ..strokeWidth = 2.0
-                )
+                  ..color = chosen.selectedColor
+                  ..strokeWidth = chosen.strokeWidth
               );
+              widget.datum.points.add(point);
+              _tempLine.add(point);
             }
           });
         },
         onPanUpdate: (details) {
           parent!.setState(() {
             if (widget.datum.isSelected) {
-              widget.datum.points.add(DrawingArea(
-                point: details.localPosition,
-                areaPaint: Paint()
-                  ..strokeCap = StrokeCap.round
-                  ..isAntiAlias = true
-                  ..color = Colors.black
-                  ..strokeWidth = 2.0
-                )
+              DrawingArea point = DrawingArea(
+                  point: details.localPosition,
+                  areaPaint: Paint()
+                    ..strokeCap = StrokeCap.round
+                    ..isAntiAlias = true
+                    ..color = chosen.selectedColor
+                    ..strokeWidth = chosen.strokeWidth
               );
+              widget.datum.points.add(point);
+              _tempLine.add(point);
             }
+          });
+        },
+        onTapUp: (details) {
+          parent!.setState(() {
+            widget.datum.addLine(_tempLine);
+            _tempLine = [];
           });
         },
         onPanEnd: (details) {
           parent!.setState(() {
-            Offset noPoint = const Offset(-100.0, -100.0);
-            widget.datum.points.add(DrawingArea(
-              point: noPoint,
-              areaPaint: Paint()
-                ..strokeCap = StrokeCap.round
-                ..isAntiAlias = true
-                ..color = Colors.black
-                ..strokeWidth = 2.0
-              ),
-            );
+            widget.datum.addLine(_tempLine);
+            _tempLine = [];
           });
         },
         child: AnimatedContainer(
@@ -259,12 +235,11 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   width: sheetWidth,
                   height: sheetHeight,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(20.0)),
                     child: CustomPaint(
                       painter: MyCustomPainter(
                         points: widget.datum.points,
-                        color: Colors.black,
-                        strokeWidth: 2.0,
+                        color: chosen.selectedColor,
+                        strokeWidth: chosen.strokeWidth,
                       ),
                     ),
                   ),

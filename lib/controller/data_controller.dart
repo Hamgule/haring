@@ -1,14 +1,57 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:haring4/painter/painter.dart';
+
+class LineHistory {
+  List<List<DrawingArea>> before = [];
+  List<List<DrawingArea>> after = [];
+
+  void syncAfter() {
+    if (before.length == after.length) return;
+    after.clear();
+    before.forEach((e) => after.add(e));
+  }
+}
 
 class Datum {
   int num = 0;
   bool isSelected = false;
   List<DrawingArea> points = [];
+  LineHistory lineHistory = LineHistory();
+
   Datum({this.num = 0, this.isSelected = false});
 
   void toggleSelection() {
     isSelected = !isSelected;
+  }
+
+  void addLine(List<DrawingArea> line) {
+    points.add(endOfPoint);
+    line.add(endOfPoint);
+    lineHistory.syncAfter();
+    lineHistory.before.add(line);
+    lineHistory.after.add(line);
+  }
+
+  void undo() {
+    if (lineHistory.before.isEmpty) return;
+    lineHistory.before.removeLast();
+    syncPoints();
+  }
+
+  void redo() {
+    int _pivot = lineHistory.before.length;
+    if (_pivot == lineHistory.after.length) return;
+    List<DrawingArea> _reDoPoint = lineHistory.after[_pivot];
+    lineHistory.before.add(_reDoPoint);
+    syncPoints();
+  }
+
+  void syncPoints() {
+    points.clear();
+    for (List<DrawingArea> line in lineHistory.before) {
+      points.addAll(line);
+    }
   }
 }
 
