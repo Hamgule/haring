@@ -136,7 +136,7 @@ class _SideButtonState extends State<SideButton> {
     if (widget.direction == 'left' && currentScrollNum > 0) {
       focusSheet(sheetCont.getNumbers()[(currentScrollNum - 1) * 2]);
     }
-    if (widget.direction == 'right' &&
+    if (widget.direction == 'right' && sheetCont.getNumbers().length > 1 &&
         sheetCont.getNumbers()[currentScrollNum + 1]
             <= sheetCont.maxNum / 2) {
       focusSheet(sheetCont.getNumbers()[(currentScrollNum + 1) * 2]);

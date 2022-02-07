@@ -118,7 +118,7 @@ class _SlideBarState extends State<SlideBar>
           size: iconSize,
         ),
       ),
-      GestureDetector(
+      InkWell(
         onTap: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
@@ -128,31 +128,35 @@ class _SlideBarState extends State<SlideBar>
             eraseMode = false;
           });
         },
+        customBorder: const CircleBorder(),
         onDoubleTap: () => selectColor(),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              child: Container(
-                width: 66.0,
-                height: 66.0,
-                decoration: BoxDecoration(
-                  color: eraseMode ? Colors.white : Palette.themeColor1,
-                  borderRadius: BorderRadius.circular(50.0),
+        child: Container(
+          margin: const EdgeInsets.all(5.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                child: Container(
+                  width: 66.0,
+                  height: 66.0,
+                  decoration: BoxDecoration(
+                    color: eraseMode ? Colors.white : Palette.themeColor1,
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              child: Container(
-                width: painterCont.size,
-                height: painterCont.size,
-                decoration: BoxDecoration(
-                  color: painterCont.color,
-                  borderRadius: BorderRadius.circular(50.0),
+              Positioned(
+                child: Container(
+                  width: painterCont.size,
+                  height: painterCont.size,
+                  decoration: BoxDecoration(
+                    color: painterCont.color,
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       Slider(
@@ -185,14 +189,16 @@ class _SlideBarState extends State<SlideBar>
             ).paint.eraseAll();
           });
         },
-        child: SizedBox(
+        customBorder: const CircleBorder(),
+        child: Container(
+          margin: const EdgeInsets.all(18.0),
           width: iconSize,
           height: iconSize,
           child: SvgPicture.asset(
             'assets/icons/eraser.svg',
             color: eraseMode ?
-              Palette.themeColor1 :
-              Colors.white,
+            Palette.themeColor1 :
+            Colors.white,
           ),
         ),
       ),
