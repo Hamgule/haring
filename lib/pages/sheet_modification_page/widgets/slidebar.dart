@@ -6,6 +6,8 @@ import 'package:haring4/config/palette.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 
+bool eraseMode = false;
+
 class SlideBar extends StatefulWidget {
   final Axis axis;
   final void Function(int) cb;
@@ -27,7 +29,6 @@ class _SlideBarState extends State<SlideBar>
   Animation<double>? _anim;
 
   bool check = false;
-  bool eraseMode = false;
 
   @override
   void initState() {
@@ -50,9 +51,16 @@ class _SlideBarState extends State<SlideBar>
 
   void getEraseMode() {
     if (sheetCont.selectedNum < 0) return;
-    eraseMode = sheetCont.getDataWhere(
-      sheetCont.selectedNum,
-    ).paint.eraseMode;
+    if (Get.currentRoute == '/LeaderPage') {
+      sheetCont.getDataWhere(
+        sheetCont.selectedNum,
+      ).paint.eraseMode;
+    }
+    else {
+      sheetCont.getDataWhere(
+        sheetCont.selectedNum,
+      ).privatePaint.eraseMode;
+    }
   }
 
   void selectColor() {
@@ -92,9 +100,17 @@ class _SlideBarState extends State<SlideBar>
         onPressed: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-            sheetCont.getDataWhere(
-              sheetCont.selectedNum,
-            ).paint.undo();
+            if (Get.currentRoute == '/LeaderPage') {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).paint.undo();
+              sheetCont.updateDB();
+            }
+            else {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).privatePaint.undo();
+            }
           });
         },
         icon: Icon(
@@ -107,9 +123,17 @@ class _SlideBarState extends State<SlideBar>
         onPressed: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-            sheetCont.getDataWhere(
-              sheetCont.selectedNum,
-            ).paint.redo();
+            if (Get.currentRoute == '/LeaderPage') {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).paint.redo();
+              sheetCont.updateDB();
+            }
+            else {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).privatePaint.redo();
+            }
           });
         },
         icon: Icon(
@@ -122,9 +146,16 @@ class _SlideBarState extends State<SlideBar>
         onTap: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-            sheetCont.getDataWhere(
-              sheetCont.selectedNum,
-            ).paint.setEraseMode(false);
+            if (Get.currentRoute == '/LeaderPage') {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).paint.setEraseMode(false);
+            }
+            else {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).privatePaint.setEraseMode(false);
+            }
             eraseMode = false;
           });
         },
@@ -175,18 +206,36 @@ class _SlideBarState extends State<SlideBar>
         onTap: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-            sheetCont.getDataWhere(
-              sheetCont.selectedNum,
-            ).paint.setEraseMode(true);
-            eraseMode = true;
+
+            if (Get.currentRoute == '/LeaderPage') {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).paint.setEraseMode(true);
+              eraseMode = true;
+              sheetCont.updateDB();
+            }
+            else {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).privatePaint.setEraseMode(true);
+              eraseMode = true;
+            }
           });
         },
         onLongPress: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-            sheetCont.getDataWhere(
-              sheetCont.selectedNum,
-            ).paint.eraseAll();
+            if (Get.currentRoute == '/LeaderPage') {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).paint.eraseAll();
+              sheetCont.updateDB();
+            }
+            else {
+              sheetCont.getDataWhere(
+                sheetCont.selectedNum,
+              ).privatePaint.eraseAll();
+            }
           });
         },
         customBorder: const CircleBorder(),

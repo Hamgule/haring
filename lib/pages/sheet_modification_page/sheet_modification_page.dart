@@ -6,8 +6,19 @@ import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 
+void uploadImage() {
+  int num = sheetCont.maxNum + 1;
+  addImage(num);
+  sheetCont.setIsCreate(true);
+  //// sheetCont.getDataWhere(num).image
+}
+void downloadImage() {
+
+}
+
 class SheetModificationPage extends StatefulWidget {
-  const SheetModificationPage({Key? key, required this.isLeader})
+  const SheetModificationPage({
+    Key? key, required this.isLeader,})
       : super(key: key);
 
   final bool isLeader;
@@ -35,6 +46,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
       body: Stack(
         children: [
           SheetScrollView(isLeader: widget.isLeader),
+          PinWidget(pin.pin),
           const SideButton(direction: 'left'),
           const SideButton(direction: 'right'),
           Positioned(
@@ -43,6 +55,48 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             bottom: 20.0,
             child: SlideBar(
               cb: (int i) => print(i),
+            ),
+          ),
+          if (widget.isLeader && sheetCont.sheets.isEmpty)
+          Positioned(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '사진을 추가하세요',
+                    style: TextStyle(
+                      fontSize: 30.0,
+                      fontFamily: 'NanumGothicRegular',
+                      color: Palette.themeColor1,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10.0,),
+                  SizedBox(
+                    width: 300.0,
+                    height: 300.0,
+                    child: OutlinedButton(
+                      onPressed: () => setState(() => uploadImage()),
+                      child: const Icon(
+                        Icons.add,
+                        size: 100.0,
+                        color: Palette.themeColor1,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          width: 5.0,
+                          color: Palette.themeColor1,
+                          style: BorderStyle.solid,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -66,12 +120,6 @@ class ModificationPageAppBar extends StatefulWidget implements PreferredSizeWidg
 
 class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
 
-  void uploadImage() {
-    addImage(sheetCont.maxNum + 1);
-    sheetCont.setIsCreate(true);
-  }
-  void downloadImage() {}
-
   @override
   Widget build(BuildContext context) {
 
@@ -88,7 +136,21 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         icon: const Icon(
           Icons.arrow_back_ios,
         ),
-        onPressed: () { Get.back(); },
+        onPressed: () {
+          String msg = '';
+          msg = widget.isLeader ? '모든 시트 정보가 초기화 됩니다.\n' : '';
+          msg += '정말로 방을 나가시겠습니까?';
+          popUp(
+            '주의', msg, () {
+              if (widget.isLeader) {
+                pin.removePin();
+              }
+              sheetCont.clearSheetData();
+              Get.back();
+              Get.back();
+            }
+          );
+        },
       ),
       actions: [
         IconButton(
@@ -133,12 +195,15 @@ class _SideButtonState extends State<SideButton> {
   bool buttonDown = false;
 
   void buttonPressed() {
+    List<int> _numbers = sheetCont.getNumbers();
+
     if (widget.direction == 'left' && currentScrollNum > 0) {
-      focusSheet(sheetCont.getNumbers()[(currentScrollNum - 1) * 2]);
+      focusSheet(_numbers[(currentScrollNum - 1) * 2]);
     }
-    if (widget.direction == 'right' && sheetCont.getNumbers().length > 1 &&
-        sheetCont.getNumbers()[currentScrollNum + 1]
-            <= sheetCont.maxNum / 2) {
+    print(_numbers[currentScrollNum + 1]);
+    print(_numbers.length / 2);
+    if (widget.direction == 'right' && _numbers.length > 1 &&
+        _numbers[currentScrollNum + 1] <= _numbers.length / 2) {
       focusSheet(sheetCont.getNumbers()[(currentScrollNum + 1) * 2]);
     }
   }

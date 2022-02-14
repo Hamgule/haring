@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
 import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 import 'package:haring4/pages/sheet_modification_page/user_page.dart';
 
 class JoinPage extends StatefulWidget {
@@ -21,25 +22,59 @@ class _JoinPageState extends State<JoinPage> {
     super.initState();
   }
 
+// appbar
+
+  PreferredSizeWidget myAppBar = AppBar(
+    backgroundColor: Colors.white.withOpacity(0.0),
+    elevation: 0.0,
+    iconTheme: const IconThemeData(
+      color: Palette.themeColor1,
+    ),
+    leading: IconButton(
+      icon: const Icon(
+        Icons.arrow_back_ios,
+      ),
+      onPressed: () => Get.back(),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
+    appbarSize = AppBar().preferredSize;
 
     return Scaffold(
       appBar: myAppBar,
-      body: Column(
-        children: [
-          const Logo('ha', 'ring'),
-          const SizedBox(
-            height: 20.0,
-          ),
-          InputForm(
-            controller: pinController,
-            hintText: 'PIN',
-            onButtonPressed: () {
-              Get.to(const UserPage());
-            }
-          ),
-        ],
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Logo('ha', 'ring'),
+            const SizedBox(height: 20.0,),
+            InputForm(
+              controller: pinController,
+              hintText: 'PIN',
+              onButtonPressed: () async {
+                String text = pinController.text;
+                String msg = '';
+                if (text == '') { msg = 'PIN 을 입력하세요.'; }
+                else if (await pin.isIn(text)) {
+                  setState(() {
+                    pin.pin = text;
+                    Get.to(() => const UserPage());
+                  });
+                  return;
+                }
+                else {
+                  if (double.tryParse(text) == null) { msg = '숫자만 사용하여 입력하세요.'; }
+                  else if (text.length != 6) { msg = '6자의 PIN을 입력하세요.'; }
+                  else { msg = '\'$text\' 방이 존재하지 않습니다.'; }
+                }
+                popUp('PIN 오류', msg, () => Get.back());
+              }
+            ),
+            SizedBox(height: appbarSize.height),
+          ],
+        ),
       ),
     );
   }
@@ -69,6 +104,7 @@ class InputForm extends StatelessWidget {
 
   TextFormField getInputArea() => TextFormField(
     controller: controller,
+    keyboardType: TextInputType.number,
     decoration: InputDecoration(
       filled: true,
       fillColor: Colors.white.withOpacity(0.7),
@@ -85,11 +121,11 @@ class InputForm extends StatelessWidget {
     onPressed: onButtonPressed,
     child: const Icon(
       Icons.arrow_forward_ios,
-      color: Palette.themeColor1,
+      color: Palette.themeColor2,
     ),
     style: OutlinedButton.styleFrom(
       side: const BorderSide(
-        color: Palette.themeColor1,
+        color: Palette.themeColor2,
         style: BorderStyle.solid,
         width: 2.0,
       ),

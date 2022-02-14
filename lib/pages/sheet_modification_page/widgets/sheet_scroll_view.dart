@@ -1,9 +1,12 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
 import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/painter.dart';
+import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 
 class SheetScrollView extends StatefulWidget {
   const SheetScrollView({Key? key, required this.isLeader}) : super(key: key);
@@ -16,12 +19,32 @@ class SheetScrollView extends StatefulWidget {
 
 class SheetScrollViewState extends State<SheetScrollView> {
 
+  Future loadOnceDB(DatabaseReference f) async {
+    DatabaseEvent event = await f.once();
+    sheetCont.subLoadDB(event);
+
+  }
+
+  Future loadRealDB(DatabaseReference f) async {
+    Stream<DatabaseEvent> stream = f.onValue;
+    stream.listen((event) {
+      setState(() {
+        sheetCont.storeBeforeLoad();
+        sheetCont.sheets(RxList<Sheet>([]));
+        sheetCont.subLoadDB(event);
+        sheetCont.restoreAfterLoad();
+      });
+    });
+  }
+
   @override
   void initState() {
-    scrollCont.addListener(() {
-      scrollListener();
-    });
     super.initState();
+
+    final f = FirebaseDatabase.instance.ref('pins/${pin.pin}/sheets');
+    widget.isLeader ? loadOnceDB(f) : loadRealDB(f);
+
+    scrollCont.addListener(() => scrollListener());
   }
 
   @override
@@ -76,14 +99,17 @@ class SheetScrollViewState extends State<SheetScrollView> {
     screenSize = MediaQuery.of(context).size;
     appbarSize = AppBar().preferredSize;
 
-    return SingleChildScrollView(
-      physics: sheetCont.selectedNum < 0 ?
-        null : const NeverScrollableScrollPhysics(),
-      controller: scrollCont,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: musicSheets(widget.isLeader),
+    return SizedBox(
+      height: screenSize.height - appbarSize.height,
+      child: SingleChildScrollView(
+        physics: sheetCont.selectedNum < 0 ?
+          null : const NeverScrollableScrollPhysics(),
+        controller: scrollCont,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: musicSheets(widget.isLeader),
+          ),
         ),
       ),
     );
@@ -136,28 +162,59 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     void tapStart(Offset offset) {
       if (!sheet.isSelected) return;
-      if (sheet.paint.eraseMode) {
-        sheet.paint.erase(offset);
-        return;
+
+      if (widget.isLeader) {
+        if (sheet.paint.eraseMode) {
+          sheet.paint.erase(offset);
+          return;
+        }
+        sheet.paint.drawStart(offset);
       }
-      sheet.paint.drawStart(offset);
+      else {
+        if (sheet.privatePaint.eraseMode) {
+          sheet.privatePaint.erase(offset);
+          return;
+        }
+        sheet.privatePaint.drawStart(offset);
+      }
     }
 
     void tapUpdate(Offset offset) {
       if (!sheet.isSelected) return;
-      if (sheet.paint.eraseMode) {
-        sheet.paint.erase(offset);
-        return;
+
+      if (widget.isLeader) {
+        if (sheet.paint.eraseMode) {
+          sheet.paint.erase(offset);
+          return;
+        }
+        sheet.paint.drawing(offset);
+        // sheetCont.updateDB();
       }
-      sheet.paint.drawing(offset);
+      else {
+        if (sheet.privatePaint.eraseMode) {
+          sheet.privatePaint.erase(offset);
+          return;
+        }
+        sheet.privatePaint.drawing(offset);
+      }
     }
 
-    void tapEnd() => sheet.paint.drawEnd();
-
+    void tapEnd() {
+      if (widget.isLeader) {
+        sheet.paint.drawEnd();
+        sheetCont.updateDB();
+        return;
+      }
+      sheet.privatePaint.drawEnd();
+    }
     return Container(
       margin: EdgeInsets.symmetric(vertical: marginHeight,),
       child: GestureDetector(
-        onDoubleTap: () => parent!.setState(() => toggleSelection(sheet.num)),
+        onDoubleTap: () => parent!.setState(() {
+          toggleSelection(sheet.num);
+          if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
+          else { sheet.privatePaint.setEraseMode(eraseMode); }
+        }),
         onPanStart: (details) => parent!.setState(() => tapStart(details.localPosition)),
         onPanUpdate: (details) => parent!.setState(() => tapUpdate(details.localPosition)),
         onPanEnd: (details) => parent!.setState(() => tapEnd()),
@@ -183,8 +240,20 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   width: sheetWidth,
                   height: sheetHeight,
                   child: ClipRRect(
-                    child: CustomPaint(
-                      painter: MyPainter(sheet.paint.lines),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          child: CustomPaint(
+                            painter: MyPainter(sheet.paint.lines,),
+                          ),
+                        ),
+                        if (!widget.isLeader)
+                        Positioned(
+                          child: CustomPaint(
+                            painter: MyPainter(sheet.privatePaint.lines,),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

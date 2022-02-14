@@ -4,6 +4,7 @@ import 'package:haring4/config/palette.dart';
 import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
+import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 import 'package:reorderables/reorderables.dart';
 
 // Global Variables
@@ -38,6 +39,7 @@ class _SidebarState extends State<Sidebar> {
     }
 
     sheetCont.sheets(_orderData);
+    sheetCont.updateDB();
   }
 
   @override
@@ -56,6 +58,8 @@ class _SidebarState extends State<Sidebar> {
         onDoubleTap: () {
           parent!.setState(() {
             _toggleSelection(sheet.num);
+            if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
+            else { sheet.privatePaint.setEraseMode(eraseMode); }
           });
         },
         child: AnimatedContainer(
@@ -162,7 +166,7 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    _SidebarState? parent = context.findAncestorStateOfType<_SidebarState>();
+    SheetModificationPageState? parent = context.findAncestorStateOfType<SheetModificationPageState>();
     final Sheet sheet = widget.sheet;
 
     return GestureDetector(

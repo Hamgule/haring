@@ -9,6 +9,7 @@ class Painter {
 
   // variables
   List<List<Dot>> lines = [];
+  List<DateTime> genTimes = [];
   final histories = History();
 
   double _size = 2.0;
@@ -42,7 +43,10 @@ class Painter {
     size: painterCont.size,
   ));
 
-  void drawEnd() => histories.addHistory(lines);
+  void drawEnd() {
+    histories.addHistory(lines);
+    genTimes.add(DateTime.now());
+  }
 
   void erase(Offset offset) {
     const eraserSize = 15.0;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:haring4/models/painter.dart';
 
@@ -7,6 +9,8 @@ class Sheet {
   bool isSelected;
   GlobalKey? globalKey;
   Painter paint = Painter();
+  Painter privatePaint = Painter();
+  //// File? image;
 
   Sheet({
     this.num = 0,

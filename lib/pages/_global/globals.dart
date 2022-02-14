@@ -4,6 +4,7 @@ import 'package:haring4/config/palette.dart';
 import 'package:haring4/controllers/painter_controller.dart';
 import 'package:haring4/controllers/sheet_controller.dart';
 import 'package:haring4/controllers/sidebar_controller.dart';
+import 'package:haring4/models/pin.dart';
 import 'package:haring4/models/sheet.dart';
 
 /// variables
@@ -12,6 +13,9 @@ final painterCont = Get.put(PainterController());
 final sheetCont = Get.put(SheetController());
 final sidebarCont = Get.put(SidebarController());
 final scrollCont = ScrollController();
+final pin = Pin();
+
+const imagePermission = false;
 
 late int currentScrollNum;
 late Size screenSize;
@@ -34,24 +38,6 @@ void focusSheet(int num) {
 }
 
 /// widgets
-
-// appbar
-
-final PreferredSizeWidget myAppBar = AppBar(
-  backgroundColor: Colors.white.withOpacity(0.0),
-  elevation: 0.0,
-  iconTheme: const IconThemeData(
-    color: Palette.themeColor1,
-  ),
-  leading: IconButton(
-    icon: const Icon(
-      Icons.arrow_back_ios,
-    ),
-    onPressed: () {
-      Get.back();
-    },
-  ),
-);
 
 // logo
 
@@ -101,6 +87,78 @@ class Logo extends StatelessWidget {
   }
 }
 
-// input form
+// pin
 
+class PinWidget extends StatelessWidget {
+  const PinWidget(this.pin, {Key? key}) : super(key: key) ;
+
+  final String pin;
+
+  static const Color firstColor = Palette.themeColor2;
+  static const Color secondColor = Palette.themeColor1;
+
+  Widget pinWidget(String text, Color color) => Text(
+    text,
+    style: TextStyle(
+      color: color,
+      fontFamily: 'MontserratBold',
+      fontSize: 40.0,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      bottom: 0,
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          vertical: 5.0,
+          horizontal: 20.0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            pinWidget('PIN ', firstColor),
+            pinWidget(pin, secondColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// dialog
+void popUp(String title, String content, VoidCallback onConfirm) {
+  Get.defaultDialog(
+    title: title,
+    titleStyle: const TextStyle(fontWeight: FontWeight.bold,),
+    titlePadding: const EdgeInsets.fromLTRB(10.0, 40.0, 10.0, 5.0),
+    content: Column(
+      children: [
+        Container(
+          height: 80.0,
+          decoration: BoxDecoration(
+            color: Palette.themeColor1.withOpacity(.1),
+          ),
+          child: Center(
+              child: Text(content, textAlign: TextAlign.center,),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: TextButton(
+                onPressed: onConfirm,
+                child: const Text('확인',),
+              ),
+            ),
+          ],
+        )
+      ],
+    ),
+  );
+}
 
