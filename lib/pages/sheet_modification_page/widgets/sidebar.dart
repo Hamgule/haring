@@ -9,7 +9,7 @@ import 'package:reorderables/reorderables.dart';
 
 // Global Variables
 
-const double _fontSize = 30.0;
+const double _fontSize = 20.0;
 const double _sheetWidth = 100.0;
 const double _sheetHeight = 130.0;
 
@@ -72,11 +72,18 @@ class _SidebarState extends State<Sidebar> {
           ),
           duration: const Duration(milliseconds: 300),
           child: Center(
-            child: Text(
-              '${sheet.num}',
-              style: TextStyle(
-                fontSize: _fontSize,
-                color: Colors.black.withOpacity(.5),
+            child: Container(
+              padding: const EdgeInsets.all(7.0),
+              child: Text(
+                sheet.title,
+                style: TextStyle(
+                  fontSize: _fontSize,
+                  color: sheet.isSelected ?
+                    Palette.themeColor2 :
+                    Colors.black.withOpacity(.5),
+                  fontFamily: 'MontserratBold',
+                  fontFamilyFallback: const ['OneMobileTitle',],
+                ),
               ),
             ),
           ),
@@ -174,11 +181,9 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
         focusSheet(sheet.num);
         Get.back();
       },
-      onDoubleTap: () {
-        parent!.setState(() {
-          sheetCont.toggleSelection(sheet.num);
-        });
-      },
+      onDoubleTap: () =>
+        parent!.setState(() =>
+          sheetCont.toggleSelection(sheet.num)),
       child: Center(
         child: AnimatedContainer(
           width: _sheetWidth,
@@ -190,11 +195,19 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
           ),
           duration: const Duration(milliseconds: 300),
           child: Center(
-            child: Text(
-              '${sheet.num}',
-              style: TextStyle(
-                fontSize: 30.0,
-                color: Colors.black.withOpacity(.5),
+            child: Container(
+              padding: const EdgeInsets.all(7.0),
+              child: Text(
+                sheet.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: _fontSize,
+                  color: sheet.isSelected ?
+                    Palette.themeColor2 :
+                    Colors.black.withOpacity(.5),
+                  fontFamily: 'MontserratBold',
+                  fontFamilyFallback: const ['OneMobileTitle',],
+                ),
               ),
             ),
           ),

@@ -10,6 +10,7 @@ class Painter {
   // variables
   List<List<Dot>> lines = [];
   List<DateTime> genTimes = [];
+  List<bool> isTemps = [];
   final histories = History();
 
   double _size = 2.0;
@@ -37,15 +38,18 @@ class Painter {
     lines.add(line);
   }
 
-  void drawing(Offset offset) => lines.last.add(Dot(
-    offset: offset,
-    color: painterCont.color,
-    size: painterCont.size,
-  ));
+  void drawing(Offset offset) {
+    lines.last.add(Dot(
+      offset: offset,
+      color: painterCont.color,
+      size: painterCont.size,
+    ));
+  }
 
   void drawEnd() {
     histories.addHistory(lines);
     genTimes.add(DateTime.now());
+    // isTemps.add();
   }
 
   void erase(Offset offset) {
@@ -74,6 +78,15 @@ class Painter {
   void redo() {
     List<List<Dot>> _future = histories.getFuture();
     lines = [..._future];
+  }
+
+  void removeOlderLine(int seconds) {
+    for (int i = 0; i < genTimes.length; i++) {
+      if (DateTime.now().difference(genTimes[i]).inSeconds >= seconds) {
+        genTimes.removeAt(i);
+        lines.removeAt(i);
+      }
+    }
   }
 
 }

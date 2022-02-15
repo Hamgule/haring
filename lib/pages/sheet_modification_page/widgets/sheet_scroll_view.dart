@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -158,7 +160,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     double screenHeight = screenSize.height - appbarSize.height;
     double sheetWidth = screenSize.width * 0.4;
     double sheetHeight = screenHeight * 0.9;
-    double marginHeight = screenHeight * 0.05;
+    double marginHeight = screenHeight * 0.04;
+    double titleHeight = screenHeight * 0.040;
 
     void tapStart(Offset offset) {
       if (!sheet.isSelected) return;
@@ -182,7 +185,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     void tapUpdate(Offset offset) {
       if (!sheet.isSelected) return;
 
-      if (widget.isLeader) {
+      if (widget.isLeader && sheet.isSelected) {
         if (sheet.paint.eraseMode) {
           sheet.paint.erase(offset);
           return;
@@ -200,90 +203,132 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     }
 
     void tapEnd() {
-      if (widget.isLeader) {
+      if (widget.isLeader && sheet.isSelected) {
         sheet.paint.drawEnd();
         sheetCont.updateDB();
+
+        Timer(
+          const Duration(seconds: removeSec),
+          () => setState(() {
+            sheet.paint.removeOlderLine(removeSec);
+            sheetCont.updateDB();
+          }),
+        );
         return;
       }
       sheet.privatePaint.drawEnd();
     }
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: marginHeight,),
-      child: GestureDetector(
-        onDoubleTap: () => parent!.setState(() {
-          toggleSelection(sheet.num);
-          if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
-          else { sheet.privatePaint.setEraseMode(eraseMode); }
-        }),
-        onPanStart: (details) => parent!.setState(() => tapStart(details.localPosition)),
-        onPanUpdate: (details) => parent!.setState(() => tapUpdate(details.localPosition)),
-        onPanEnd: (details) => parent!.setState(() => tapEnd()),
-        child: AnimatedContainer(
-          width: sheetWidth,
-          height: sheetHeight,
-          key: sheet.globalKey,
-          decoration: BoxDecoration(
-            color: sheet.isSelected ?
-            Palette.themeColor1.withOpacity(.5) :
-            Colors.grey.withOpacity(.5),
-            border: Border.all(
-              width: 3.0,
-              color: sheet.isSelected ?
-              Palette.themeColor1 : Colors.transparent,
+    return Column(
+      children: [
+        Container(
+          child: GestureDetector(
+            onDoubleTap: () => parent!.setState(() {
+              toggleSelection(sheet.num);
+              if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
+              else { sheet.privatePaint.setEraseMode(eraseMode); }
+            }),
+            onPanStart: (details) => parent!.setState(() => tapStart(details.localPosition)),
+            onPanUpdate: (details) => parent!.setState(() => tapUpdate(details.localPosition)),
+            onPanEnd: (details) => parent!.setState(() => tapEnd()),
+            child: AnimatedContainer(
+              margin: EdgeInsets.fromLTRB(0, 0, 0, marginHeight),
+              duration: const Duration(milliseconds: 250),
+              width: sheetWidth,
+              height: sheetHeight,
+              key: sheet.globalKey,
+              decoration: BoxDecoration(
+                color: sheet.isSelected ?
+                Palette.themeColor1.withOpacity(.3) :
+                Colors.grey.withOpacity(.3),
+                border: Border.all(
+                  width: 3.0,
+                  color: sheet.isSelected ?
+                  Palette.themeColor1 : Colors.transparent,
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    child: GestureDetector(
+                      onTap: () {
+                        titleController.text = sheet.title;
+                        titlePopUp(() {
+                          Get.back();
+                          setState(() => sheet.title = titleController.text);
+                          sheetCont.updateDB();
+                          titleController.text = '';
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        width: sheetWidth,
+                        height: titleHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 250),
+                          child: Text(sheet.title,),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24.0,
+                            color: sheet.isSelected ? Palette.themeColor2 : Colors.black45,
+                            fontFamily: 'MontserratBold',
+                            fontFamilyFallback: const ['OneMobileTitle',],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    child: SizedBox(
+                      width: sheetWidth,
+                      height: sheetHeight,
+                      child: ClipRRect(
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.paint.lines,),
+                              ),
+                            ),
+                            if (!widget.isLeader)
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.privatePaint.lines,),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (widget.isLeader)
+                  Positioned(
+                    right: 0.0,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => parent!.setState(() => delImage(sheet.num)),
+                    ),
+                  ),
+                  Positioned(
+                    child: Center(
+                      child: Text(
+                        '${sheet.num + 1}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(.5),
+                          fontSize: 180.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          duration: const Duration(milliseconds: 300),
-          child: Stack(
-            children: [
-              Positioned(
-                child: SizedBox(
-                  width: sheetWidth,
-                  height: sheetHeight,
-                  child: ClipRRect(
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          child: CustomPaint(
-                            painter: MyPainter(sheet.paint.lines,),
-                          ),
-                        ),
-                        if (!widget.isLeader)
-                        Positioned(
-                          child: CustomPaint(
-                            painter: MyPainter(sheet.privatePaint.lines,),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              if (widget.isLeader)
-              Positioned(
-                right: 0.0,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                  ),
-                  onPressed: () => parent!.setState(() => delImage(sheet.num)),
-                ),
-              ),
-              Positioned(
-                child: Center(
-                  child: Text(
-                    '${sheet.num}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(.5),
-                      fontSize: 180.0,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
-      ),
+      ],
     );
   }
 }

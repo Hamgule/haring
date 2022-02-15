@@ -13,11 +13,13 @@ final painterCont = Get.put(PainterController());
 final sheetCont = Get.put(SheetController());
 final sidebarCont = Get.put(SidebarController());
 final scrollCont = ScrollController();
+final titleController = TextEditingController();
 final pin = Pin();
 
 const imagePermission = false;
+const removeSec = 5;
 
-late int currentScrollNum;
+int currentScrollNum = 0;
 late Size screenSize;
 late Size appbarSize;
 
@@ -26,7 +28,9 @@ late Size appbarSize;
 void deselectAll() => sheetCont.deselectAll();
 void toggleSelection(int num) => sheetCont.toggleSelection(num);
 
-void addImage(int num) => sheetCont.addSheet(Sheet(num: num, globalKey: GlobalKey(),),);
+void addImage(int num, String title) => sheetCont.addSheet(
+  Sheet(num: num, title: title, globalKey: GlobalKey(),),
+);
 void delImage(int num) => sheetCont.delSheet(num);
 
 void focusSheet(int num) {
@@ -162,3 +166,39 @@ void popUp(String title, String content, VoidCallback onConfirm) {
   );
 }
 
+void titlePopUp(VoidCallback? onConfirm) {
+  Get.defaultDialog(
+    title: '제목',
+    titleStyle: const TextStyle(fontWeight: FontWeight.bold,),
+    titlePadding: const EdgeInsets.fromLTRB(10.0, 40.0, 10.0, 5.0),
+    content: Column(
+      children: [
+        Container(
+          height: 80.0,
+          decoration: BoxDecoration(
+            color: Palette.themeColor1.withOpacity(.1),
+          ),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Center(
+              child: TextFormField(
+                controller: titleController,
+              ),
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: TextButton(
+                onPressed: onConfirm,
+                child: const Text('확인',),
+              ),
+            ),
+          ],
+        )
+      ],
+    ),
+  );
+}

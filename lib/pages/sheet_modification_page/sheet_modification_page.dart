@@ -6,12 +6,13 @@ import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 
-void uploadImage() {
+void uploadImage(String title) {
   int num = sheetCont.maxNum + 1;
-  addImage(num);
+  addImage(num, title);
   sheetCont.setIsCreate(true);
   //// sheetCont.getDataWhere(num).image
 }
+
 void downloadImage() {
 
 }
@@ -77,7 +78,14 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                     width: 300.0,
                     height: 300.0,
                     child: OutlinedButton(
-                      onPressed: () => setState(() => uploadImage()),
+                      onPressed: () {
+                        titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+                        titlePopUp(() {
+                          Get.back();
+                          setState(() => uploadImage(titleController.text));
+                          titleController.text = '';
+                        });
+                      },
                       child: const Icon(
                         Icons.add,
                         size: 100.0,
@@ -164,7 +172,14 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         if (widget.isLeader)
         IconButton(
           icon: const Icon(Icons.upload,),
-          onPressed: () => parent!.setState(() => uploadImage()),
+          onPressed: () {
+            titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+            titlePopUp(() {
+              Get.back();
+              parent!.setState(() => uploadImage(titleController.text));
+              titleController.text = '';
+            });
+          },
         ),
         IconButton(
           icon: const Icon(Icons.download,),
@@ -200,10 +215,9 @@ class _SideButtonState extends State<SideButton> {
     if (widget.direction == 'left' && currentScrollNum > 0) {
       focusSheet(_numbers[(currentScrollNum - 1) * 2]);
     }
-    print(_numbers[currentScrollNum + 1]);
-    print(_numbers.length / 2);
+
     if (widget.direction == 'right' && _numbers.length > 1 &&
-        _numbers[currentScrollNum + 1] <= _numbers.length / 2) {
+        _numbers[currentScrollNum + 1] < _numbers.length / 2) {
       focusSheet(sheetCont.getNumbers()[(currentScrollNum + 1) * 2]);
     }
   }
