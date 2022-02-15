@@ -1,21 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 
 void uploadImage(String title) {
   int num = sheetCont.maxNum + 1;
   addImage(num, title);
   sheetCont.setIsCreate(true);
-  //// sheetCont.getDataWhere(num).image
 }
 
 void downloadImage() {
 
 }
+
 
 class SheetModificationPage extends StatefulWidget {
   const SheetModificationPage({
@@ -37,6 +43,25 @@ class SheetModificationPageState extends State<SheetModificationPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    Future pickImage() async {
+      try {
+        final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+        if (image == null) return;
+
+        setState(() {
+          sheetCont.getDataWhere(sheetCont.maxNum).image = File(image.path);
+        });
+
+      } on PlatformException catch (e) {
+        print("Failed to pick image: $e");
+      }
+    }
+
+    void subUploadImage(String title) {
+      uploadImage(title);
+      pickImage();
+    }
 
     return Scaffold(
       key: sidebarCont.scaffoldKey,
@@ -82,7 +107,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                         titleController.text = 'sheet ${sheetCont.maxNum + 2}';
                         titlePopUp(() {
                           Get.back();
-                          setState(() => uploadImage(titleController.text));
+                          setState(() => subUploadImage(titleController.text));
                           titleController.text = '';
                         });
                       },
@@ -134,6 +159,25 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
     SheetModificationPageState? parent = context
         .findAncestorStateOfType<SheetModificationPageState>();
 
+    Future pickImage() async {
+      try {
+        final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+        if (image == null) return;
+
+        parent!.setState(() {
+          sheetCont.getDataWhere(sheetCont.maxNum).image = File(image.path);
+        });
+
+      } on PlatformException catch (e) {
+        print("Failed to pick image: $e");
+      }
+    }
+
+    void subUploadImage() {
+      uploadImage();
+      pickImage();
+    }
+
     return AppBar(
       backgroundColor: Colors.white.withOpacity(0.0),
       elevation: 0.0,
@@ -176,7 +220,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
             titleController.text = 'sheet ${sheetCont.maxNum + 2}';
             titlePopUp(() {
               Get.back();
-              parent!.setState(() => uploadImage(titleController.text));
+              parent!.setState(() => subUploadImage(titleController.text));
               titleController.text = '';
             });
           },

@@ -248,6 +248,12 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               ),
               child: Stack(
                 children: [
+                  if (sheet.image != null)
+                  Positioned(
+                    child: Center(
+                      child: Image.file(sheet.image!, width: sheetWidth, height: sheetHeight, fit: BoxFit.contain,),
+                    ),
+                  ),
                   Positioned(
                     child: GestureDetector(
                       onTap: () {
