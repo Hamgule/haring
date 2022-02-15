@@ -81,6 +81,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
             bottom: 20.0,
             child: SlideBar(
               cb: (int i) => print(i),
+              isLeader: widget.isLeader,
             ),
           ),
           if (widget.isLeader && sheetCont.sheets.isEmpty)
@@ -173,8 +174,8 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
       }
     }
 
-    void subUploadImage() {
-      uploadImage();
+    void subUploadImage(String title) {
+      uploadImage(title);
       pickImage();
     }
 

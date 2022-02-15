@@ -170,7 +170,7 @@ void popUp(String title, String content, VoidCallback onConfirm) {
 
 void titlePopUp(VoidCallback? onConfirm) {
   Get.defaultDialog(
-    title: '제목',
+    title: '악보 제목',
     titleStyle: const TextStyle(fontWeight: FontWeight.bold,),
     titlePadding: const EdgeInsets.fromLTRB(10.0, 40.0, 10.0, 5.0),
     content: Column(
