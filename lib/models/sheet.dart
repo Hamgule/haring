@@ -10,7 +10,7 @@ class Sheet {
   GlobalKey? globalKey;
   Painter paint = Painter();
   Painter privatePaint = Painter();
-  //// File? image;
+  File? image;
 
   Sheet({
     this.num = 0,

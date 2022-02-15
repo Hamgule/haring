@@ -235,6 +235,12 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
           duration: const Duration(milliseconds: 300),
           child: Stack(
             children: [
+              if (sheet.image != null)
+                Positioned(
+                    child: Center(
+                      child: Image.file(sheet.image!, width: sheetWidth, height: sheetHeight, fit: BoxFit.contain,),
+                    )
+                ),
               Positioned(
                 child: SizedBox(
                   width: sheetWidth,
@@ -269,6 +275,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   onPressed: () => parent!.setState(() => delImage(sheet.num)),
                 ),
               ),
+              if (false)
               Positioned(
                 child: Center(
                   child: Text(
