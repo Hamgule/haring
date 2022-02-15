@@ -12,8 +12,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 
-void uploadImage() {
-  addImage(sheetCont.maxNum + 1);
+void uploadImage(String title) {
+  int num = sheetCont.maxNum + 1;
+  addImage(num, title);
   sheetCont.setIsCreate(true);
 }
 
@@ -57,8 +58,8 @@ class SheetModificationPageState extends State<SheetModificationPage> {
       }
     }
 
-    void subUploadImage() {
-      uploadImage();
+    void subUploadImage(String title) {
+      uploadImage(title);
       pickImage();
     }
 
@@ -102,7 +103,14 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                     width: 300.0,
                     height: 300.0,
                     child: OutlinedButton(
-                      onPressed: () => setState(() => subUploadImage(),),
+                      onPressed: () {
+                        titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+                        titlePopUp(() {
+                          Get.back();
+                          setState(() => subUploadImage(titleController.text));
+                          titleController.text = '';
+                        });
+                      },
                       child: const Icon(
                         Icons.add,
                         size: 100.0,
@@ -208,7 +216,14 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         if (widget.isLeader)
         IconButton(
           icon: const Icon(Icons.upload,),
-          onPressed: () => parent!.setState(() => subUploadImage()),
+          onPressed: () {
+            titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+            titlePopUp(() {
+              Get.back();
+              parent!.setState(() => subUploadImage(titleController.text));
+              titleController.text = '';
+            });
+          },
         ),
         IconButton(
           icon: const Icon(Icons.download,),
@@ -244,10 +259,9 @@ class _SideButtonState extends State<SideButton> {
     if (widget.direction == 'left' && currentScrollNum > 0) {
       focusSheet(_numbers[(currentScrollNum - 1) * 2]);
     }
-    print(_numbers[currentScrollNum + 1]);
-    print(_numbers.length / 2);
+
     if (widget.direction == 'right' && _numbers.length > 1 &&
-        _numbers[currentScrollNum + 1] <= _numbers.length / 2) {
+        _numbers[currentScrollNum + 1] < _numbers.length / 2) {
       focusSheet(sheetCont.getNumbers()[(currentScrollNum + 1) * 2]);
     }
   }

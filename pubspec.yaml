@@ -104,5 +104,9 @@ flutter:
       fonts:
         - asset: fonts/Nanum_Gothic/NanumGothic-Regular.ttf
 
+    - family: OneMobileTitle
+      fonts:
+        - asset: fonts/ONE_Mobile_Title/ONEMobile-Title.ttf
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

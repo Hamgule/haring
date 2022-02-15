@@ -45,15 +45,12 @@ class SheetController extends GetxController {
             'size': dot.size,
           });
         }
-        lineList.add({
-          'line': dotList,
-          'genTime': sheet.paint.genTimes[
-            sheet.paint.lines.indexOf(line)
-          ].toString(),
-        });
+
+        lineList.add({'line': dotList,});
       }
       sheetList.add({
         'num': sheet.num,
+        'title': sheet.title,
         'lines': lineList,
       });
     }
@@ -139,7 +136,9 @@ class SheetController extends GetxController {
 
     for (var loadedSheet in loadedSheets) {
       Sheet sheet = Sheet(globalKey: GlobalKey(),);
-      sheet.num = (loadedSheet as Map)['num'];
+      loadedSheet as Map;
+      sheet.num = loadedSheet['num'];
+      sheet.title = loadedSheet['title'];
       var loadedLines = loadedSheet['lines'];
 
       if (loadedLines == null) {
@@ -160,7 +159,6 @@ class SheetController extends GetxController {
           ));
         }
         sheet.paint.lines.add(dotList);
-        sheet.paint.genTimes.add(DateTime.parse(loadedLine['genTime']));
       }
       sheets.add(sheet);
     }

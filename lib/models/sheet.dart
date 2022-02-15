@@ -6,6 +6,7 @@ import 'package:haring4/models/painter.dart';
 
 class Sheet {
   int num;
+  String title;
   bool isSelected;
   GlobalKey? globalKey;
   Painter paint = Painter();
@@ -14,6 +15,7 @@ class Sheet {
 
   Sheet({
     this.num = 0,
+    this.title = '',
     this.isSelected = false,
     this.globalKey,
   });
