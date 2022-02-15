@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:haring4/models/dot.dart';
 import 'package:haring4/models/history.dart';
 import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 
 class Painter {
 
@@ -47,19 +48,22 @@ class Painter {
   }
 
   void drawEnd() {
-    histories.addHistory(lines);
+    if (!tempMode) histories.addHistory(lines);
     genTimes.add(DateTime.now());
-    // isTemps.add();
+    isTemps.add(tempMode);
   }
 
   void erase(Offset offset) {
-    const eraserSize = 15.0;
+    const eraserSize = 20.0;
 
-    for (List<Dot> line in List<List<Dot>>.from(lines)) {
-      for (Dot dot in line) {
+    for (int i = 0; i < lines.length; i++) {
+      if (isTemps[i]) continue;
+      for (Dot dot in lines[i]) {
         if (sqrt(pow(offset.dx - dot.offset.dx, 2)
             + pow(offset.dy - dot.offset.dy, 2)) < eraserSize) {
-          lines.remove(line);
+          genTimes.removeAt(i);
+          isTemps.removeAt(i);
+          lines.removeAt(i);
           break;
         }
       }
@@ -67,8 +71,13 @@ class Painter {
   }
 
   void eraseAll() {
-    lines = [];
-    histories.addHistory(lines);
+    for (int i = lines.length; i > 0; i--) {
+      if (isTemps[i - 1]) continue;
+      genTimes.removeAt(i - 1);
+      isTemps.removeAt(i - 1);
+      lines.removeAt(i - 1);
+    }
+    if (!tempMode) histories.addHistory(lines);
   }
 
   void undo() {
@@ -82,8 +91,9 @@ class Painter {
 
   void removeOlderLine(int seconds) {
     for (int i = 0; i < genTimes.length; i++) {
-      if (DateTime.now().difference(genTimes[i]).inSeconds >= seconds) {
+      if (isTemps[i] && DateTime.now().difference(genTimes[i]).inSeconds >= seconds) {
         genTimes.removeAt(i);
+        isTemps.removeAt(i);
         lines.removeAt(i);
       }
     }

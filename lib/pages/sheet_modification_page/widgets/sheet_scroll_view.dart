@@ -203,7 +203,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     }
 
     void tapEnd() {
-      if (widget.isLeader && sheet.isSelected) {
+      if (widget.isLeader && sheet.isSelected && !eraseMode) {
         sheet.paint.drawEnd();
         sheetCont.updateDB();
 
@@ -255,6 +255,29 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                     ),
                   ),
                   Positioned(
+                    child: SizedBox(
+                      width: sheetWidth,
+                      height: sheetHeight,
+                      child: ClipRRect(
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.paint.lines,),
+                              ),
+                            ),
+                            if (!widget.isLeader)
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.privatePaint.lines,),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
                     child: GestureDetector(
                       onTap: () {
                         titleController.text = sheet.title;
@@ -284,29 +307,6 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    child: SizedBox(
-                      width: sheetWidth,
-                      height: sheetHeight,
-                      child: ClipRRect(
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              child: CustomPaint(
-                                painter: MyPainter(sheet.paint.lines,),
-                              ),
-                            ),
-                            if (!widget.isLeader)
-                            Positioned(
-                              child: CustomPaint(
-                                painter: MyPainter(sheet.privatePaint.lines,),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                   if (widget.isLeader)
                   Positioned(
                     right: 0.0,
@@ -318,6 +318,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       onPressed: () => parent!.setState(() => delImage(sheet.num)),
                     ),
                   ),
+                  if(sheet.image == null)
                   Positioned(
                     child: Center(
                       child: Text(

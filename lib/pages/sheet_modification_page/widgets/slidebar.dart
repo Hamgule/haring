@@ -7,15 +7,18 @@ import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 
 bool eraseMode = false;
+bool tempMode = false;
 
 class SlideBar extends StatefulWidget {
   final Axis axis;
   final void Function(int) cb;
+  final bool isLeader;
 
   const SlideBar({
     Key? key,
     this.axis = Axis.horizontal,
     required this.cb,
+    required this.isLeader,
   }) : super(key: key);
 
   @override
@@ -96,6 +99,21 @@ class _SlideBarState extends State<SlideBar>
     double iconSize = 35.0;
 
     List<Widget> menus = [
+      if (widget.isLeader)
+      IconButton(
+        onPressed: () => setState(() {
+          sheetCont.getDataWhere(
+            sheetCont.selectedNum,
+          ).paint.setEraseMode(false);
+          eraseMode = false;
+          tempMode = !tempMode;
+        }),
+        icon: Icon(
+          Icons.timer,
+          color: tempMode ? Palette.themeColor1 : Colors.white,
+          size: iconSize,
+        ),
+      ),
       IconButton(
         onPressed: () {
           parent!.setState(() {
@@ -206,19 +224,19 @@ class _SlideBarState extends State<SlideBar>
         onTap: () {
           parent!.setState(() {
             if (sheetCont.selectedNum < 0) return;
-
             if (Get.currentRoute == '/LeaderPage') {
+              tempMode = false;
+              eraseMode = !eraseMode;
               sheetCont.getDataWhere(
                 sheetCont.selectedNum,
-              ).paint.setEraseMode(true);
-              eraseMode = true;
+              ).paint.setEraseMode(eraseMode);
               sheetCont.updateDB();
             }
             else {
+              eraseMode = !eraseMode;
               sheetCont.getDataWhere(
                 sheetCont.selectedNum,
-              ).privatePaint.setEraseMode(true);
-              eraseMode = true;
+              ).privatePaint.setEraseMode(eraseMode);
             }
           });
         },
@@ -229,6 +247,7 @@ class _SlideBarState extends State<SlideBar>
               sheetCont.getDataWhere(
                 sheetCont.selectedNum,
               ).paint.eraseAll();
+              tempMode = false;
               sheetCont.updateDB();
             }
             else {
@@ -275,7 +294,7 @@ class _SlideBarState extends State<SlideBar>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        color: Colors.black.withOpacity(.3),
+        color: Colors.black.withOpacity(.1),
         child: Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.symmetric(horizontal: 30.0),
