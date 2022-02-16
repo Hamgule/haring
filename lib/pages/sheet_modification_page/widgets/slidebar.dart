@@ -36,8 +36,8 @@ class _SlideBarState extends State<SlideBar>
   @override
   void initState() {
     _act = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 300),
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
     )
       ..addListener(() {
         if (!mounted) return;
@@ -68,25 +68,25 @@ class _SlideBarState extends State<SlideBar>
 
   void selectColor() {
     showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Color Chooser'),
-          content: SingleChildScrollView(
-            child: ColorPicker(
-              pickerColor: painterCont.color,
-              onColorChanged: (color) => setState(() => painterCont.setColor(color)),
-              pickerAreaHeightPercent: 0.8,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Color Chooser'),
+            content: SingleChildScrollView(
+              child: ColorPicker(
+                pickerColor: painterCont.color,
+                onColorChanged: (color) => setState(() => painterCont.setColor(color)),
+                pickerAreaHeightPercent: 0.8,
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text("Close"),
-            ),
-          ],
-        );
-      }
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text("Close"),
+              ),
+            ],
+          );
+        }
     );
   }
 
@@ -100,20 +100,20 @@ class _SlideBarState extends State<SlideBar>
 
     List<Widget> menus = [
       if (widget.isLeader)
-      IconButton(
-        onPressed: () => setState(() {
-          sheetCont.getDataWhere(
-            sheetCont.selectedNum,
-          ).paint.setEraseMode(false);
-          eraseMode = false;
-          tempMode = !tempMode;
-        }),
-        icon: Icon(
-          Icons.timer,
-          color: tempMode ? Palette.themeColor1 : Colors.white,
-          size: iconSize,
+        IconButton(
+          onPressed: () => setState(() {
+            sheetCont.getDataWhere(
+              sheetCont.selectedNum,
+            ).paint.setEraseMode(false);
+            eraseMode = false;
+            tempMode = !tempMode;
+          }),
+          icon: Icon(
+            Icons.timer,
+            color: tempMode ? Palette.themeColor1 : Colors.white,
+            size: iconSize,
+          ),
         ),
-      ),
       IconButton(
         onPressed: () {
           parent!.setState(() {
@@ -209,16 +209,16 @@ class _SlideBarState extends State<SlideBar>
         ),
       ),
       Slider(
-        min: 2.0,
-        max: 60.0,
-        value: painterCont.size,
-        inactiveColor: Colors.white,
-        activeColor: Palette.themeColor1,
-        onChanged: (value) {
-          parent!.setState(() {
-            painterCont.setSize(value);
-          });
-        }
+          min: 2.0,
+          max: 60.0,
+          value: painterCont.size,
+          inactiveColor: Colors.white,
+          activeColor: Palette.themeColor1,
+          onChanged: (value) {
+            parent!.setState(() {
+              painterCont.setSize(value);
+            });
+          }
       ),
       InkWell(
         onTap: () {
@@ -278,7 +278,7 @@ class _SlideBarState extends State<SlideBar>
     ).animate(_act!);
 
     List<Widget> _bar() => menus.map<Widget>(
-      (Widget item) => InkWell(
+          (Widget item) => InkWell(
         onTap: () => widget.cb(menus.indexOf(item)),
         child: item,
       ),

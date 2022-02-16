@@ -46,15 +46,10 @@ class SheetModificationPageState extends State<SheetModificationPage> {
   @override
   Widget build(BuildContext context) {
 
-    Future pickImage() async {
+    Future<XFile?> pickImage() async {
       try {
-        XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (image == null) return;
-
-        Sheet _sheet = sheetCont.getDataWhere(sheetCont.maxNum);
-        setState(() => _sheet.image = File(image.path));
-        sheetCont.uploadFile(image);
-
+        return await ImagePicker().pickImage(source: ImageSource.gallery);
+        // sheetCont.uploadFile(image);
       } on PlatformException catch (e) {
         print("Failed to pick image: $e");
       }
@@ -62,7 +57,6 @@ class SheetModificationPageState extends State<SheetModificationPage> {
 
     void subUploadImage(String title) async {
       uploadImage(title);
-      pickImage();
     }
 
     return Scaffold(
@@ -106,12 +100,17 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                     width: 300.0,
                     height: 300.0,
                     child: OutlinedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         titleController.text = 'sheet ${sheetCont.maxNum + 2}';
-                        titlePopUp(() {
+                        XFile? image = await pickImage();
+
+                        if (image == null) return;
+                        titlePopUp(() async {
                           Get.back();
-                          subUploadImage(titleController.text);
+                          uploadImage(titleController.text);
                           titleController.text = '';
+                          await sheetCont.uploadFile(image, sheetCont.maxNum);
+                          setState(() {});
                         });
                       },
                       child: const Icon(
@@ -162,23 +161,13 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
     SheetModificationPageState? parent = context
         .findAncestorStateOfType<SheetModificationPageState>();
 
-    Future pickImage() async {
+    Future<XFile?> pickImage() async {
       try {
-        final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (image == null) return;
-
-        parent!.setState(() {
-          sheetCont.getDataWhere(sheetCont.maxNum).image = File(image.path);
-        });
-
+        return await ImagePicker().pickImage(source: ImageSource.gallery);
+        // sheetCont.uploadFile(image);
       } on PlatformException catch (e) {
         print("Failed to pick image: $e");
       }
-    }
-
-    void subUploadImage(String title) {
-      uploadImage(title);
-      pickImage();
     }
 
     return AppBar(
@@ -219,12 +208,17 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         if (widget.isLeader)
         IconButton(
           icon: const Icon(Icons.upload,),
-          onPressed: () {
+          onPressed: () async {
             titleController.text = 'sheet ${sheetCont.maxNum + 2}';
-            titlePopUp(() {
+            XFile? image = await pickImage();
+
+            if (image == null) return;
+            titlePopUp(() async {
               Get.back();
-              parent!.setState(() => subUploadImage(titleController.text));
+              uploadImage(titleController.text);
               titleController.text = '';
+              await sheetCont.uploadFile(image, sheetCont.maxNum);
+              parent!.setState(() {});
             });
           },
         ),

@@ -155,6 +155,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     screenSize = MediaQuery.of(context).size;
     appbarSize = AppBar().preferredSize;
+    bool good = true;
 
     double screenHeight = screenSize.height - appbarSize.height;
     double sheetWidth = screenSize.width * 0.4;
@@ -247,16 +248,21 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               ),
               child: Stack(
                 children: [
-                  if (sheet.image != null)
+                  if (widget.isLeader && sheet.image != null)
                   Positioned(
                     child: Center(
-                      child: widget.isLeader ?
-                      Image.file(
+                      child: Image.file(
                         sheet.image!,
                         width: sheetWidth,
                         height: sheetHeight,
                         fit: BoxFit.contain,
-                      ) : Image.network(
+                      ),
+                    ),
+                  ),
+                  if (!widget.isLeader && sheet.imageUrl != null)
+                  Positioned(
+                    child: Center(
+                      child: Image.network(
                         sheet.imageUrl!,
                         width: sheetWidth,
                         height: sheetHeight,
@@ -328,7 +334,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       onPressed: () => parent!.setState(() => delImage(sheet.num)),
                     ),
                   ),
-                  if(sheet.image == null)
+                  if((sheet.image == null && widget.isLeader) || (sheet.imageUrl == null && !widget.isLeader))
                   Positioned(
                     child: Center(
                       child: Text(

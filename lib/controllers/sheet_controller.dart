@@ -170,32 +170,13 @@ class SheetController extends GetxController {
     }
   }
 
-  // database image
-  // Future saveImages(List<File> images, DocumentReference ref) async {
-  //   images.forEach((image) async {
-  //     String imageURL = await uploadFile(image);
-  //     ref.update({'images': FiledValue.arrayUnion([imageURL])});
-  //   });
-  // }
-
-  Future uploadFile(XFile? image) async {
-    if (image == null) return;
-    // RegExp exp = RegExp(r'\.\w+');
-    // RegExpMatch? matches;
-    // String? extension;
-    //
-    // matches = exp.firstMatch(image.name);
-    // extension = matches!.group(0).toString();
-
-    // Reference ref = FirebaseStorage.instance
-    //     .ref('pins/${pin.pin}/sheets/${sheetCont.maxNum.toString().padLeft(3, '0')}$extension');
-
+  Future uploadFile(XFile? image, int num) async {
     Reference ref = FirebaseStorage.instance
-      .ref('pins/${pin.pin}/sheets/${maxNum.toString().padLeft(3, '0')}');
+      .ref('pins/${pin.pin}/sheets/${num.toString().padLeft(3, '0')}');
 
-    TaskSnapshot task = await ref.putFile(File(image.path));
-    sheets.last.imageUrl = await task.ref.getDownloadURL();
-
+    TaskSnapshot task = await ref.putFile(File(image!.path));
+    sheets[num].image = File(image.path);
+    sheets[num].imageUrl = await task.ref.getDownloadURL();
     updateDB();
   }
 
