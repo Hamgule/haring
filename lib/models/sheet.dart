@@ -12,6 +12,7 @@ class Sheet {
   Painter paint = Painter();
   Painter privatePaint = Painter();
   File? image;
+  String? imageUrl;
 
   Sheet({
     this.num = 0,

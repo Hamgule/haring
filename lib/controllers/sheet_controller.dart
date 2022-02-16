@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/models/data_storage.dart';
 import 'package:haring4/models/dot.dart';
 import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SheetController extends GetxController {
 
@@ -51,6 +55,7 @@ class SheetController extends GetxController {
       sheetList.add({
         'num': sheet.num,
         'title': sheet.title,
+        'imageUrl': sheet.imageUrl,
         'lines': lineList,
       });
     }
@@ -103,7 +108,7 @@ class SheetController extends GetxController {
     return _globalKeys;
   }
 
-  // database
+  // database painter
   Future updateDB() async {
     final f = FirebaseDatabase.instance.ref('pins/${pin.pin}');
     await f.update(toJson());
@@ -139,6 +144,7 @@ class SheetController extends GetxController {
       loadedSheet as Map;
       sheet.num = loadedSheet['num'];
       sheet.title = loadedSheet['title'];
+      sheet.imageUrl = loadedSheet['imageUrl'];
       var loadedLines = loadedSheet['lines'];
 
       if (loadedLines == null) {
@@ -164,5 +170,38 @@ class SheetController extends GetxController {
     }
   }
 
+  // database image
+  // Future saveImages(List<File> images, DocumentReference ref) async {
+  //   images.forEach((image) async {
+  //     String imageURL = await uploadFile(image);
+  //     ref.update({'images': FiledValue.arrayUnion([imageURL])});
+  //   });
+  // }
+
+  Future uploadFile(XFile? image) async {
+    if (image == null) return;
+    // RegExp exp = RegExp(r'\.\w+');
+    // RegExpMatch? matches;
+    // String? extension;
+    //
+    // matches = exp.firstMatch(image.name);
+    // extension = matches!.group(0).toString();
+
+    // Reference ref = FirebaseStorage.instance
+    //     .ref('pins/${pin.pin}/sheets/${sheetCont.maxNum.toString().padLeft(3, '0')}$extension');
+
+    Reference ref = FirebaseStorage.instance
+      .ref('pins/${pin.pin}/sheets/${maxNum.toString().padLeft(3, '0')}');
+
+    TaskSnapshot task = await ref.putFile(File(image.path));
+    sheets.last.imageUrl = await task.ref.getDownloadURL();
+
+    updateDB();
+  }
+
+  void downloadFile(int num) {
+    Sheet sheet = getDataWhere(num);
+
+  }
 }
 
