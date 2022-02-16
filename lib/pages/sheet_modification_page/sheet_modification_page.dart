@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
+import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
@@ -18,8 +19,9 @@ void uploadImage(String title) {
   sheetCont.setIsCreate(true);
 }
 
-void downloadImage() {
-
+void downloadImage(int num) {
+  if (num < 0) return;
+  sheetCont.downloadFile(num);
 }
 
 
@@ -46,19 +48,19 @@ class SheetModificationPageState extends State<SheetModificationPage> {
 
     Future pickImage() async {
       try {
-        final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+        XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
         if (image == null) return;
 
-        setState(() {
-          sheetCont.getDataWhere(sheetCont.maxNum).image = File(image.path);
-        });
+        Sheet _sheet = sheetCont.getDataWhere(sheetCont.maxNum);
+        setState(() => _sheet.image = File(image.path));
+        sheetCont.uploadFile(image);
 
       } on PlatformException catch (e) {
         print("Failed to pick image: $e");
       }
     }
 
-    void subUploadImage(String title) {
+    void subUploadImage(String title) async {
       uploadImage(title);
       pickImage();
     }
@@ -108,7 +110,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                         titleController.text = 'sheet ${sheetCont.maxNum + 2}';
                         titlePopUp(() {
                           Get.back();
-                          setState(() => subUploadImage(titleController.text));
+                          subUploadImage(titleController.text);
                           titleController.text = '';
                         });
                       },
@@ -228,7 +230,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         ),
         IconButton(
           icon: const Icon(Icons.download,),
-          onPressed: () => parent!.setState(() => downloadImage()),
+          onPressed: () => parent!.setState(() => downloadImage(sheetCont.selectedNum)),
         ),
         IconButton(
           icon: const Icon(Icons.view_sidebar,),

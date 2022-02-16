@@ -24,7 +24,6 @@ class SheetScrollViewState extends State<SheetScrollView> {
   Future loadOnceDB(DatabaseReference f) async {
     DatabaseEvent event = await f.once();
     sheetCont.subLoadDB(event);
-
   }
 
   Future loadRealDB(DatabaseReference f) async {
@@ -251,7 +250,18 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   if (sheet.image != null)
                   Positioned(
                     child: Center(
-                      child: Image.file(sheet.image!, width: sheetWidth, height: sheetHeight, fit: BoxFit.contain,),
+                      child: widget.isLeader ?
+                      Image.file(
+                        sheet.image!,
+                        width: sheetWidth,
+                        height: sheetHeight,
+                        fit: BoxFit.contain,
+                      ) : Image.network(
+                        sheet.imageUrl!,
+                        width: sheetWidth,
+                        height: sheetHeight,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   Positioned(

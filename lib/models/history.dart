@@ -11,7 +11,6 @@ class History {
   int pivot = 0;
 
   void increasePivot() => pivot = min(lineStack.length - 1, pivot + 1);
-
   void decreasePivot() => pivot = max(0, pivot - 1);
 
   void addHistory(List<List<Dot>> state) {
