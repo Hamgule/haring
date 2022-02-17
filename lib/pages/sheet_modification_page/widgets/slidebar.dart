@@ -110,7 +110,7 @@ class _SlideBarState extends State<SlideBar>
           }),
           icon: Icon(
             Icons.timer,
-            color: tempMode ? Palette.themeColor1 : Colors.white,
+            color: tempMode ? Palette().themeColor1 : Colors.white,
             size: iconSize,
           ),
         ),
@@ -189,7 +189,7 @@ class _SlideBarState extends State<SlideBar>
                   width: 66.0,
                   height: 66.0,
                   decoration: BoxDecoration(
-                    color: eraseMode ? Colors.white : Palette.themeColor1,
+                    color: eraseMode ? Colors.white : Palette().themeColor1,
                     borderRadius: BorderRadius.circular(50.0),
                   ),
                 ),
@@ -213,7 +213,7 @@ class _SlideBarState extends State<SlideBar>
           max: 60.0,
           value: painterCont.size,
           inactiveColor: Colors.white,
-          activeColor: Palette.themeColor1,
+          activeColor: Palette().themeColor1,
           onChanged: (value) {
             parent!.setState(() {
               painterCont.setSize(value);
@@ -265,7 +265,7 @@ class _SlideBarState extends State<SlideBar>
           child: SvgPicture.asset(
             'assets/icons/eraser.svg',
             color: eraseMode ?
-            Palette.themeColor1 :
+            Palette().themeColor1 :
             Colors.white,
           ),
         ),
@@ -304,7 +304,7 @@ class _SlideBarState extends State<SlideBar>
               IconButton(
                 icon: Icon(
                   check ? Icons.close : Icons.brush,
-                  color: Palette.white,
+                  color: Colors.white,
                   size: iconSize,
                 ),
                 onPressed: () {

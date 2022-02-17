@@ -67,7 +67,7 @@ class _SidebarState extends State<Sidebar> {
           height: _sheetHeight,
           decoration: BoxDecoration(
             color: sheet.isSelected ?
-            Palette.themeColor1.withOpacity(.5) :
+            Palette().themeColor1.withOpacity(.5) :
             Colors.grey.withOpacity(.5),
           ),
           duration: const Duration(milliseconds: 300),
@@ -75,11 +75,13 @@ class _SidebarState extends State<Sidebar> {
             child: Container(
               padding: const EdgeInsets.all(7.0),
               child: Text(
-                sheet.title,
+                sheet.title.length < 19 ?
+                sheet.title :
+                sheet.title.substring(0, 20) + ' ...',
                 style: TextStyle(
                   fontSize: _fontSize,
                   color: sheet.isSelected ?
-                    Palette.themeColor2 :
+                    Palette().themeColor2 :
                     Colors.black.withOpacity(.5),
                   fontFamily: 'MontserratBold',
                   fontFamilyFallback: const ['OneMobileTitle',],
@@ -190,7 +192,7 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
           height: _sheetHeight,
           decoration: BoxDecoration(
             color: sheet.isSelected ?
-              Palette.themeColor1.withOpacity(.5) :
+              Palette().themeColor1.withOpacity(.5) :
               Colors.grey.withOpacity(.5),
           ),
           duration: const Duration(milliseconds: 300),
@@ -203,7 +205,7 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
                 style: TextStyle(
                   fontSize: _fontSize,
                   color: sheet.isSelected ?
-                    Palette.themeColor2 :
+                    Palette().themeColor2 :
                     Colors.black.withOpacity(.5),
                   fontFamily: 'MontserratBold',
                   fontFamilyFallback: const ['OneMobileTitle',],

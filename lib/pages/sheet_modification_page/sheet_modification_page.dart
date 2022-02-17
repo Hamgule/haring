@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
-import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 
 void uploadImage(String title) {
@@ -86,12 +84,12 @@ class SheetModificationPageState extends State<SheetModificationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     '사진을 추가하세요',
                     style: TextStyle(
                       fontSize: 30.0,
                       fontFamily: 'NanumGothicRegular',
-                      color: Palette.themeColor1,
+                      color: Palette().themeColor1,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -113,15 +111,15 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                           setState(() {});
                         });
                       },
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
                         size: 100.0,
-                        color: Palette.themeColor1,
+                        color: Palette().themeColor1,
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
+                        side: BorderSide(
                           width: 5.0,
-                          color: Palette.themeColor1,
+                          color: Palette().themeColor1,
                           style: BorderStyle.solid,
                         ),
                         shape: RoundedRectangleBorder(
@@ -173,8 +171,8 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
     return AppBar(
       backgroundColor: Colors.white.withOpacity(0.0),
       elevation: 0.0,
-      iconTheme: const IconThemeData(
-        color: Palette.themeColor1,
+      iconTheme: IconThemeData(
+        color: Palette().themeColor1,
       ),
       leading: IconButton(
         icon: const Icon(

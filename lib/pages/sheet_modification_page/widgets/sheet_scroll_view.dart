@@ -155,7 +155,6 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     screenSize = MediaQuery.of(context).size;
     appbarSize = AppBar().preferredSize;
-    bool good = true;
 
     double screenHeight = screenSize.height - appbarSize.height;
     double sheetWidth = screenSize.width * 0.4;
@@ -238,12 +237,12 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               key: sheet.globalKey,
               decoration: BoxDecoration(
                 color: sheet.isSelected ?
-                Palette.themeColor1.withOpacity(.3) :
+                Palette().themeColor1.withOpacity(.3) :
                 Colors.grey.withOpacity(.3),
                 border: Border.all(
                   width: 3.0,
                   color: sheet.isSelected ?
-                  Palette.themeColor1 : Colors.transparent,
+                  Palette().themeColor1 : Colors.transparent,
                 ),
               ),
               child: Stack(
@@ -311,11 +310,15 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                         padding: const EdgeInsets.symmetric(horizontal: 15.0),
                         child: AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 250),
-                          child: Text(sheet.title,),
+                          child: Text(
+                            sheet.title.length < 16 ?
+                            sheet.title :
+                            sheet.title.substring(0, 17) + ' ...',
+                          ),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 24.0,
-                            color: sheet.isSelected ? Palette.themeColor2 : Colors.black45,
+                            color: sheet.isSelected ? Palette().themeColor2 : Colors.black45,
                             fontFamily: 'MontserratBold',
                             fontFamilyFallback: const ['OneMobileTitle',],
                           ),

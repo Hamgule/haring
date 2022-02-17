@@ -22,7 +22,10 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Logo('ha', 'ring'),
+            GestureDetector(
+              onTap: () => setState(() => isRed = 1 + isRed % clicks),
+              child: Logo('ha', 'ring'),
+            ),
             const SizedBox(height: 30.0,),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -35,17 +38,17 @@ class _MainPageState extends State<MainPage> {
                       pin.generatePin();
                       Get.to(() => const LeaderPage());
                     },
-                    child: const Text(
+                    child: Text(
                       'create',
                       style: TextStyle(
-                        color: Palette.themeColor1,
+                        color: Palette().themeColor1,
                         fontFamily: 'MontserratRegular',
                         fontSize: 20.0,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Palette.themeColor1,
+                      side: BorderSide(
+                        color: Palette().themeColor1,
                         style: BorderStyle.solid,
                         width: 2.0,
                       ),
@@ -63,17 +66,17 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       Get.to(() => const JoinPage());
                     },
-                    child: const Text(
+                    child: Text(
                       'join',
                       style: TextStyle(
-                        color: Palette.themeColor2,
+                        color: Palette().themeColor2,
                         fontFamily: 'MontserratRegular',
                         fontSize: 20.0,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Palette.themeColor2,
+                      side: BorderSide(
+                        color: Palette().themeColor2,
                         style: BorderStyle.solid,
                         width: 2.0,
                       ),

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/config/palette.dart';
@@ -18,6 +16,8 @@ final scrollCont = ScrollController();
 final titleController = TextEditingController();
 final pin = Pin();
 
+const int clicks = 10;
+int isRed = 0;
 const imagePermission = false;
 const removeSec = 5;
 
@@ -47,7 +47,7 @@ void focusSheet(int num) {
 
 // logo
 
-class Logo extends StatelessWidget {
+class Logo extends StatefulWidget {
   const Logo(
     this.firstText,
     this.secondText, {
@@ -59,10 +59,12 @@ class Logo extends StatelessWidget {
   final String secondText;
   final bool shadowing;
 
-  static const Color firstColor = Palette.themeColor1;
-  static const Color secondColor = Palette.themeColor2;
+  @override
+  State<Logo> createState() => _LogoState();
+}
 
-  List<Shadow>? getShadow() => shadowing ? [
+class _LogoState extends State<Logo> {
+  List<Shadow>? getShadow() => widget.shadowing ? [
     const Shadow(
       offset: Offset(5.0, 5.0),
       blurRadius: 10.0,
@@ -86,8 +88,8 @@ class Logo extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        logo(firstText, firstColor),
-        logo(secondText, secondColor),
+        logo(widget.firstText, Palette().themeColor1),
+        logo(widget.secondText, Palette().themeColor2),
       ],
     );
   }
@@ -99,9 +101,6 @@ class PinWidget extends StatelessWidget {
   const PinWidget(this.pin, {Key? key}) : super(key: key) ;
 
   final String pin;
-
-  static const Color firstColor = Palette.themeColor2;
-  static const Color secondColor = Palette.themeColor1;
 
   Widget pinWidget(String text, Color color) => Text(
     text,
@@ -126,8 +125,8 @@ class PinWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            pinWidget('PIN ', firstColor),
-            pinWidget(pin, secondColor),
+            pinWidget('PIN ', Palette().themeColor1),
+            pinWidget(pin, Palette().themeColor2),
           ],
         ),
       ),
@@ -146,7 +145,7 @@ void popUp(String title, String content, VoidCallback onConfirm) {
         Container(
           height: 80.0,
           decoration: BoxDecoration(
-            color: Palette.themeColor1.withOpacity(.1),
+            color: Palette().themeColor1.withOpacity(.1),
           ),
           child: Center(
               child: Text(content, textAlign: TextAlign.center,),
@@ -158,7 +157,12 @@ void popUp(String title, String content, VoidCallback onConfirm) {
             Center(
               child: TextButton(
                 onPressed: onConfirm,
-                child: const Text('확인',),
+                child: Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Palette().themeColor1,
+                  ),
+                ),
               ),
             ),
           ],
@@ -178,13 +182,28 @@ void titlePopUp(VoidCallback? onConfirm) {
         Container(
           height: 80.0,
           decoration: BoxDecoration(
-            color: Palette.themeColor1.withOpacity(.1),
+            color: Palette().themeColor1.withOpacity(.1),
           ),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Center(
               child: TextFormField(
                 controller: titleController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Palette().themeColor1,
+                      width: 2.0,
+                    ),
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontFamily: 'MontserratRegular',
+                  fontFamilyFallback: const ['OneMobileTitle'],
+                  color: Palette().themeColor1,
+                ),
               ),
             ),
           ),
@@ -195,7 +214,12 @@ void titlePopUp(VoidCallback? onConfirm) {
             Center(
               child: TextButton(
                 onPressed: onConfirm,
-                child: const Text('확인',),
+                child: Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Palette().themeColor1,
+                  ),
+                ),
               ),
             ),
           ],

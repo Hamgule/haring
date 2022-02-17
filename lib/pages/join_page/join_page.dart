@@ -25,8 +25,8 @@ class _JoinPageState extends State<JoinPage> {
   PreferredSizeWidget myAppBar = AppBar(
     backgroundColor: Colors.white.withOpacity(0.0),
     elevation: 0.0,
-    iconTheme: const IconThemeData(
-      color: Palette.themeColor1,
+    iconTheme: IconThemeData(
+      color: Palette().themeColor1,
     ),
     leading: IconButton(
       icon: const Icon(
@@ -107,23 +107,23 @@ class InputForm extends StatelessWidget {
       filled: true,
       fillColor: Colors.white.withOpacity(0.7),
       enabledBorder: getInputBorder(Palette.deactiveColor),
-      focusedBorder: getInputBorder(Palette.themeColor1),
+      focusedBorder: getInputBorder(Palette().themeColor1),
       hintText: hintText,
       hintStyle: getTextStyle(Palette.deactiveColor),
       contentPadding: const EdgeInsets.all(15.0),
     ),
-    style: getTextStyle(Palette.themeColor1),
+    style: getTextStyle(Palette().themeColor1),
   );
 
   OutlinedButton getButton() => OutlinedButton(
     onPressed: onButtonPressed,
-    child: const Icon(
+    child: Icon(
       Icons.arrow_forward_ios,
-      color: Palette.themeColor2,
+      color: Palette().themeColor2,
     ),
     style: OutlinedButton.styleFrom(
-      side: const BorderSide(
-        color: Palette.themeColor2,
+      side: BorderSide(
+        color: Palette().themeColor2,
         style: BorderStyle.solid,
         width: 2.0,
       ),
