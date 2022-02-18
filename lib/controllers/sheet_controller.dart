@@ -44,7 +44,7 @@ class SheetController extends GetxController {
 
         for (Dot dot in line) {
           dotList.add({
-            'offset': dot.offset.toString(),
+            'offset': dot.offsetToString(),
             'color': dot.color.toString(),
             'size': dot.size,
           });
@@ -170,13 +170,13 @@ class SheetController extends GetxController {
     }
   }
 
-  Future uploadFile(XFile? image, int num) async {
+  Future uploadFile(XFile? image, int index) async {
     Reference ref = FirebaseStorage.instance
-      .ref('pins/${pin.pin}/sheets/${num.toString().padLeft(3, '0')}');
+      .ref('pins/${pin.pin}/sheets/${index.toString().padLeft(3, '0')}');
 
     TaskSnapshot task = await ref.putFile(File(image!.path));
-    sheets[num].image = File(image.path);
-    sheets[num].imageUrl = await task.ref.getDownloadURL();
+    sheets[index].image = File(image.path);
+    sheets[index].imageUrl = await task.ref.getDownloadURL();
     updateDB();
   }
 

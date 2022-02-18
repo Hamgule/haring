@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -157,10 +158,29 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     appbarSize = AppBar().preferredSize;
 
     double screenHeight = screenSize.height - appbarSize.height;
-    double sheetWidth = screenSize.width * 0.4;
-    double sheetHeight = screenHeight * 0.9;
+    sheetWidth = screenSize.width * 0.4;
+    sheetHeight = screenHeight * 0.9;
+    imageWidth = sheetWidth - 20.0;
+    imageHeight = imageWidth / containerRatio;
     double marginHeight = screenHeight * 0.04;
     double titleHeight = screenHeight * 0.040;
+
+    void tapEnd() {
+      if (widget.isLeader && sheet.isSelected && !eraseMode) {
+        sheet.paint.drawEnd();
+        sheetCont.updateDB();
+
+        Timer(
+          const Duration(seconds: removeSec),
+              () => setState(() {
+            sheet.paint.removeOlderLine(removeSec);
+            sheetCont.updateDB();
+          }),
+        );
+        return;
+      }
+      sheet.privatePaint.drawEnd();
+    }
 
     void tapStart(Offset offset) {
       if (!sheet.isSelected) return;
@@ -190,7 +210,6 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
           return;
         }
         sheet.paint.drawing(offset);
-        // sheetCont.updateDB();
       }
       else {
         if (sheet.privatePaint.eraseMode) {
@@ -201,22 +220,46 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
       }
     }
 
-    void tapEnd() {
-      if (widget.isLeader && sheet.isSelected && !eraseMode) {
-        sheet.paint.drawEnd();
-        sheetCont.updateDB();
+    Widget imageFile(File image) => Center(
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        width: imageWidth,
+        height: imageHeight,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: Image.file(
+          image,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
 
-        Timer(
-          const Duration(seconds: removeSec),
-          () => setState(() {
-            sheet.paint.removeOlderLine(removeSec);
-            sheetCont.updateDB();
-          }),
-        );
-        return;
-      }
-      sheet.privatePaint.drawEnd();
+    Widget imageNetwork(String imageUrl) => Center(
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        width: imageWidth,
+        height: imageHeight,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+
+    Offset translateOffset(double dx, double dy) {
+      double _tdx = dx, _tdy = dy;
+      _tdx -= 8.0;
+      _tdy -= (sheetHeight - imageHeight) / 2;
+      _tdx /= imageWidth;
+      _tdy /= imageHeight;
+
+      return Offset(_tdx, _tdy);
     }
+
     return Column(
       children: [
         Container(
@@ -226,8 +269,12 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
               else { sheet.privatePaint.setEraseMode(eraseMode); }
             }),
-            onPanStart: (details) => parent!.setState(() => tapStart(details.localPosition)),
-            onPanUpdate: (details) => parent!.setState(() => tapUpdate(details.localPosition)),
+            onPanStart: (details) => parent!.setState(() => tapStart(
+              translateOffset(details.localPosition.dx, details.localPosition.dy),
+            )),
+            onPanUpdate: (details) => parent!.setState(() => tapUpdate(
+              translateOffset(details.localPosition.dx, details.localPosition.dy),
+            )),
             onPanEnd: (details) => parent!.setState(() => tapEnd()),
             child: AnimatedContainer(
               margin: EdgeInsets.fromLTRB(0, 0, 0, marginHeight),
@@ -249,50 +296,40 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                 children: [
                   if (widget.isLeader && sheet.image != null)
                   Positioned(
-                    child: Center(
-                      child: Image.file(
-                        sheet.image!,
-                        width: sheetWidth,
-                        height: sheetHeight,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                    child: imageFile(sheet.image!),
                   ),
                   if (!widget.isLeader && sheet.imageUrl != null)
                   Positioned(
-                    child: Center(
-                      child: Image.network(
-                        sheet.imageUrl!,
-                        width: sheetWidth,
-                        height: sheetHeight,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                    child: imageNetwork(sheet.imageUrl!),
                   ),
                   Positioned(
-                    child: SizedBox(
-                      width: sheetWidth,
-                      height: sheetHeight,
-                      child: ClipRRect(
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              child: CustomPaint(
-                                painter: MyPainter(sheet.paint.lines,),
+                    child: Center(
+                      child: SizedBox(
+                        width: imageWidth,
+                        height: imageHeight,
+                        child: ClipRRect(
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                child: CustomPaint(
+                                  painter: MyPainter(sheet.paint.lines,),
+                                ),
                               ),
-                            ),
-                            if (!widget.isLeader)
-                            Positioned(
-                              child: CustomPaint(
-                                painter: MyPainter(sheet.privatePaint.lines,),
+                              if (!widget.isLeader)
+                              Positioned(
+                                child: CustomPaint(
+                                  painter: MyPainter(sheet.privatePaint.lines,),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  Positioned(
+                  AnimatedPositioned(
+                    top: sheet.isSelected ? 0 : -50,
+                    duration: const Duration(milliseconds: 250),
                     child: GestureDetector(
                       onTap: () {
                         titleController.text = sheet.title;
@@ -313,7 +350,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                           child: Text(
                             sheet.title.length < 16 ?
                             sheet.title :
-                            sheet.title.substring(0, 17) + ' ...',
+                            sheet.title.substring(0, 15) + '...',
                           ),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,

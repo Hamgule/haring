@@ -31,7 +31,7 @@ class Pin {
       ).toString().padLeft(6, '0');
     } while (await isIn(pin));
 
-    savePinDB();
+
   }
 
   void removePin() async {

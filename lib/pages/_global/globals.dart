@@ -16,14 +16,18 @@ final scrollCont = ScrollController();
 final titleController = TextEditingController();
 final pin = Pin();
 
-const int clicks = 10;
-int isRed = 0;
-const imagePermission = false;
+int clicks = 0;
+const int isRed = 10;
 const removeSec = 5;
+const containerRatio = 3 / 4;
 
 int currentScrollNum = 0;
 late Size screenSize;
 late Size appbarSize;
+late double sheetWidth;
+late double sheetHeight;
+late double imageWidth;
+late double imageHeight;
 
 /// methods
 

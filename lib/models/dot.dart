@@ -11,12 +11,14 @@ class Dot {
     this.color = Colors.black,
   });
 
+  String offsetToString() => 'Offset(${offset.dx}, ${offset.dy})';
+
   static dynamic stringToValue(String type, String text) {
     RegExp exp;
     RegExpMatch? matches;
 
     if (type == 'offset') {
-      exp = RegExp(r'(\d+.\d+), (\d+.\d+)');
+      exp = RegExp(r'-?(\d+.\d+), -?(\d+.\d+)');
       matches = exp.firstMatch(text);
       List<String> offset = matches!.group(0)!.split(', ');
       return Offset(double.parse(offset[0]), double.parse(offset[1]));

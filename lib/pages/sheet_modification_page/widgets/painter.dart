@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:haring4/models/dot.dart';
+import 'package:haring4/pages/_global/globals.dart';
 
 class MyPainter extends CustomPainter {
 
@@ -18,7 +19,10 @@ class MyPainter extends CustomPainter {
       for (var dot in line) {
         color = dot.color;
         size = dot.size;
-        offsets.add(dot.offset);
+        offsets.add(Offset(
+          dot.offset.dx * imageWidth,
+          dot.offset.dy * imageHeight,
+        ));
       }
 
       path.addPolygon(offsets, false);

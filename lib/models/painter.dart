@@ -32,7 +32,7 @@ class Painter {
   void drawStart(Offset offset) {
     List<Dot> line = [];
     line.add(Dot(
-      offset: offset,
+      offset: Offset(offset.dx, offset.dy),
       color: painterCont.color,
       size: painterCont.size,
     ));
@@ -41,7 +41,7 @@ class Painter {
 
   void drawing(Offset offset) {
     lines.last.add(Dot(
-      offset: offset,
+      offset: Offset(offset.dx, offset.dy),
       color: painterCont.color,
       size: painterCont.size,
     ));
@@ -54,13 +54,13 @@ class Painter {
   }
 
   void erase(Offset offset) {
-    const eraserSize = 20.0;
+    const eraserSize = 15.0;
 
     for (int i = 0; i < lines.length; i++) {
       if (isTemps[i]) continue;
       for (Dot dot in lines[i]) {
-        if (sqrt(pow(offset.dx - dot.offset.dx, 2)
-            + pow(offset.dy - dot.offset.dy, 2)) < eraserSize) {
+        if (sqrt(pow(offset.dx * imageWidth - dot.offset.dx * imageWidth, 2)
+            + pow(offset.dy * imageHeight - dot.offset.dy * imageHeight, 2)) < eraserSize) {
           genTimes.removeAt(i);
           isTemps.removeAt(i);
           lines.removeAt(i);

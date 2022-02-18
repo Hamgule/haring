@@ -23,7 +23,7 @@ class _MainPageState extends State<MainPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             GestureDetector(
-              onTap: () => setState(() => isRed = 1 + isRed % clicks),
+              onTap: () => setState(() => clicks = 1 + clicks % isRed),
               child: Logo('ha', 'ring'),
             ),
             const SizedBox(height: 30.0,),
@@ -36,7 +36,11 @@ class _MainPageState extends State<MainPage> {
                   child: OutlinedButton(
                     onPressed: () {
                       pin.generatePin();
-                      Get.to(() => const LeaderPage());
+                      popUp('방 입장', 'PIN: ${pin.pin}\n정말 입장하시겠습니까?', () {
+                        pin.savePinDB();
+                        Get.back();
+                        Get.to(() => const LeaderPage());
+                      });
                     },
                     child: Text(
                       'create',

@@ -107,7 +107,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                           Get.back();
                           uploadImage(titleController.text);
                           titleController.text = '';
-                          await sheetCont.uploadFile(image, sheetCont.maxNum);
+                          await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
                           setState(() {});
                         });
                       },
@@ -194,6 +194,13 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
           );
         },
       ),
+      title: Text(
+        widget.isLeader ? 'LEADER' : 'TEAM',
+        style: TextStyle(
+          color: Palette().themeColor1,
+          fontFamily: 'MontserratBold',
+        ),
+      ),
       actions: [
         IconButton(
           icon: Icon(
@@ -215,7 +222,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
               Get.back();
               uploadImage(titleController.text);
               titleController.text = '';
-              await sheetCont.uploadFile(image, sheetCont.maxNum);
+              await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
               parent!.setState(() {});
             });
           },
