@@ -29,6 +29,7 @@ class SheetScrollViewState extends State<SheetScrollView> {
 
   Future loadRealDB(DatabaseReference f) async {
     Stream<DatabaseEvent> stream = f.onValue;
+
     stream.listen((event) {
       setState(() {
         sheetCont.storeBeforeLoad();
@@ -36,6 +37,21 @@ class SheetScrollViewState extends State<SheetScrollView> {
         sheetCont.subLoadDB(event);
         sheetCont.restoreAfterLoad();
       });
+    });
+
+    await whenPinDeleted();
+  }
+
+  Future whenPinDeleted() async {
+    DatabaseReference f = FirebaseDatabase.instance.ref('pins/${pin.pin}');
+    Stream<DatabaseEvent> stream = f.onValue;
+    stream.listen((event) {
+      if (event.snapshot.value == null) {
+        setState(() => popUp(
+          '경고', '리더가 방을 닫았습니다.\n메인 화면으로 이동합니다.',
+          () { Get.back(); Get.back(); Get.back(); },
+        ));
+      }
     });
   }
 
@@ -45,7 +61,6 @@ class SheetScrollViewState extends State<SheetScrollView> {
 
     final f = FirebaseDatabase.instance.ref('pins/${pin.pin}/sheets');
     widget.isLeader ? loadOnceDB(f) : loadRealDB(f);
-
     scrollCont.addListener(() => scrollListener());
   }
 
@@ -57,43 +72,54 @@ class SheetScrollViewState extends State<SheetScrollView> {
   List<Widget> musicSheets(bool isLeader) {
     final List<Widget> _list = [];
 
-    for (int i = 0; i < (sheetCont.sheets.length - 1) / 2; i++) {
-      _list.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MusicSheetWidget(
-              isLeader: isLeader,
-              sheet: sheetCont.sheets[2 * i],
-              index: 2 * i,
-            ),
-            const SizedBox(width: 10.0),
-            MusicSheetWidget(
-              isLeader: isLeader,
-              sheet: sheetCont.sheets[2 * i + 1],
-              index: 2 * i + 1,
-            ),
-          ],
-        ),
-      );
+    if (verticalMode) {
+      for (int i = 0; i < sheetCont.sheets.length; i++) {
+        _list.add(
+          MusicSheetWidget(
+            isLeader: isLeader,
+            sheet: sheetCont.sheets[i],
+            index: i,
+          ),
+        );
+      }
     }
-    if (sheetCont.sheets.length % 2 == 1) {
-      _list.add(
-        MusicSheetWidget(
-          isLeader: isLeader,
-          sheet: sheetCont.sheets.last,
-          index: sheetCont.sheets.length - 1,
-        ),
-      );
+    else {
+      for (int i = 0; i < (sheetCont.sheets.length - 1) / 2; i++) {
+        _list.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MusicSheetWidget(
+                isLeader: isLeader,
+                sheet: sheetCont.sheets[2 * i],
+                index: 2 * i,
+              ),
+              const SizedBox(width: 10.0),
+              MusicSheetWidget(
+                isLeader: isLeader,
+                sheet: sheetCont.sheets[2 * i + 1],
+                index: 2 * i + 1,
+              ),
+            ],
+          ),
+        );
+      }
+      if (sheetCont.sheets.length % 2 == 1) {
+        _list.add(
+          MusicSheetWidget(
+            isLeader: isLeader,
+            sheet: sheetCont.sheets.last,
+            index: sheetCont.sheets.length - 1,
+          ),
+        );
+      }
     }
 
     return _list;
   }
 
-  void scrollListener() async {
-    double _screenHeight = screenSize.height - appbarSize.height;
-    currentScrollNum = (scrollCont.offset / _screenHeight).round();
-  }
+  void scrollListener() async =>
+      currentScrollNum = (scrollCont.offset / screenHeightWithoutAppbar).round();
 
   @override
   Widget build(BuildContext context) {
@@ -101,19 +127,24 @@ class SheetScrollViewState extends State<SheetScrollView> {
     screenSize = MediaQuery.of(context).size;
     appbarSize = AppBar().preferredSize;
 
-    return SizedBox(
-      height: screenSize.height - appbarSize.height,
-      child: SingleChildScrollView(
-        physics: sheetCont.selectedNum < 0 ?
-          null : const NeverScrollableScrollPhysics(),
-        controller: scrollCont,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: musicSheets(widget.isLeader),
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        verticalMode = Orientation.portrait == orientation;
+        return SizedBox(
+          height: screenSize.height - appbarSize.height,
+          child: SingleChildScrollView(
+            physics: sheetCont.selectedNum < 0 ?
+            null : const NeverScrollableScrollPhysics(),
+            controller: scrollCont,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: musicSheets(widget.isLeader),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 
@@ -157,16 +188,14 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     screenSize = MediaQuery.of(context).size;
     appbarSize = AppBar().preferredSize;
 
-    double screenHeight = screenSize.height - appbarSize.height;
-    sheetWidth = screenSize.width * 0.4;
-    sheetHeight = screenHeight * 0.9;
-    imageWidth = sheetWidth - 20.0;
-    imageHeight = imageWidth / containerRatio;
-    double marginHeight = screenHeight * 0.04;
-    double titleHeight = screenHeight * 0.040;
+    setVariables();
+    imageSize = Size(sheetSize.width - 20.0, sheetSize.width / containerRatio);
+    double marginHeight = screenHeightWithoutAppbar * 0.04;
+    double titleHeight = screenHeightWithoutAppbar * 0.040;
 
     void tapEnd() {
-      if (widget.isLeader && sheet.isSelected && !eraseMode) {
+      if (eraseMode || !sheet.isSelected) return;
+      if (widget.isLeader) {
         sheet.paint.drawEnd();
         sheetCont.updateDB();
 
@@ -223,8 +252,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     Widget imageFile(File image) => Center(
       child: Container(
         margin: const EdgeInsets.all(8.0),
-        width: imageWidth,
-        height: imageHeight,
+        width: imageSize.width,
+        height: imageSize.height,
         decoration: const BoxDecoration(
           color: Colors.white,
         ),
@@ -238,14 +267,23 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     Widget imageNetwork(String imageUrl) => Center(
       child: Container(
         margin: const EdgeInsets.all(8.0),
-        width: imageWidth,
-        height: imageHeight,
+        width: imageSize.width,
+        height: imageSize.height,
         decoration: const BoxDecoration(
           color: Colors.white,
         ),
         child: Image.network(
           imageUrl,
           fit: BoxFit.contain,
+          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null ?
+                loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null,
+              ),
+            );
+          }
         ),
       ),
     );
@@ -253,9 +291,9 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     Offset translateOffset(double dx, double dy) {
       double _tdx = dx, _tdy = dy;
       _tdx -= 8.0;
-      _tdy -= (sheetHeight - imageHeight) / 2;
-      _tdx /= imageWidth;
-      _tdy /= imageHeight;
+      _tdy -= (sheetSize.height - imageSize.height) / 2;
+      _tdx /= imageSize.width;
+      _tdy /= imageSize.height;
 
       return Offset(_tdx, _tdy);
     }
@@ -269,7 +307,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
               else { sheet.privatePaint.setEraseMode(eraseMode); }
             }),
-            onPanStart: (details) => parent!.setState(() => tapStart(
+            onPanDown: (details) => parent!.setState(() => tapStart(
               translateOffset(details.localPosition.dx, details.localPosition.dy),
             )),
             onPanUpdate: (details) => parent!.setState(() => tapUpdate(
@@ -279,8 +317,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
             child: AnimatedContainer(
               margin: EdgeInsets.fromLTRB(0, 0, 0, marginHeight),
               duration: const Duration(milliseconds: 250),
-              width: sheetWidth,
-              height: sheetHeight,
+              width: sheetSize.width,
+              height: sheetSize.height,
               key: sheet.globalKey,
               decoration: BoxDecoration(
                 color: sheet.isSelected ?
@@ -305,20 +343,20 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                   Positioned(
                     child: Center(
                       child: SizedBox(
-                        width: imageWidth,
-                        height: imageHeight,
+                        width: imageSize.width,
+                        height: imageSize.height,
                         child: ClipRRect(
                           child: Stack(
                             children: [
                               Positioned(
                                 child: CustomPaint(
-                                  painter: MyPainter(sheet.paint.lines,),
+                                  painter: MyPainter(sheet.paint.allLines,),
                                 ),
                               ),
                               if (!widget.isLeader)
                               Positioned(
                                 child: CustomPaint(
-                                  painter: MyPainter(sheet.privatePaint.lines,),
+                                  painter: MyPainter(sheet.privatePaint.allLines,),
                                 ),
                               ),
                             ],
@@ -342,7 +380,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
-                        width: sheetWidth,
+                        width: sheetSize.width,
                         height: titleHeight,
                         padding: const EdgeInsets.symmetric(horizontal: 15.0),
                         child: AnimatedDefaultTextStyle(
@@ -374,7 +412,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       onPressed: () => parent!.setState(() => delImage(sheet.num)),
                     ),
                   ),
-                  if((sheet.image == null && widget.isLeader) || (sheet.imageUrl == null && !widget.isLeader))
+                  if ((sheet.image == null && widget.isLeader)
+                      || (sheet.imageUrl == null && !widget.isLeader))
                   Positioned(
                     child: Center(
                       child: Text(
@@ -384,6 +423,19 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                           fontSize: 180.0,
                         ),
                       ),
+                    ),
+                  ),
+                  if ((sheet.image == null && widget.isLeader)
+                      || (sheet.imageUrl == null && !widget.isLeader))
+                  Positioned(
+                    child: Builder(
+                      builder: (context) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Palette().themeColor1,
+                          ),
+                        );
+                      }
                     ),
                   ),
                 ],

@@ -14,22 +14,23 @@ class MyPainter extends CustomPainter {
       List<Offset> offsets = [];
       Path path = Path();
       Color? color;
-      double? size;
+      double? weight;
 
       for (var dot in line) {
         color = dot.color;
-        size = dot.size;
+        weight = dot.size;
         offsets.add(Offset(
-          dot.offset.dx * imageWidth,
-          dot.offset.dy * imageHeight,
+          dot.offset.dx * imageSize.width,
+          dot.offset.dy * imageSize.height,
         ));
       }
 
       path.addPolygon(offsets, false);
       canvas.drawPath(path, Paint()
           ..color = color!
-          ..strokeWidth = size!
+          ..strokeWidth = weight!
           ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke
       );
     }

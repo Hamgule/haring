@@ -6,6 +6,7 @@ import 'package:haring4/controllers/sheet_controller.dart';
 import 'package:haring4/controllers/sidebar_controller.dart';
 import 'package:haring4/models/pin.dart';
 import 'package:haring4/models/sheet.dart';
+import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 
 /// variables
 
@@ -17,28 +18,37 @@ final titleController = TextEditingController();
 final pin = Pin();
 
 int clicks = 0;
+int currentScrollNum = 0;
+bool verticalMode = false;
+
 const int isRed = 10;
 const removeSec = 5;
 const containerRatio = 3 / 4;
 
-int currentScrollNum = 0;
+late double screenHeightWithoutAppbar;
 late Size screenSize;
 late Size appbarSize;
-late double sheetWidth;
-late double sheetHeight;
-late double imageWidth;
-late double imageHeight;
+late Size sheetSize;
+late Size imageSize;
 
 /// methods
 
+void setVariables() {
+  screenHeightWithoutAppbar = screenSize.height - appbarSize.height;
+  sheetSize = Size(
+    screenSize.width * (verticalMode ? 0.8 : 0.4),
+    screenHeightWithoutAppbar * 0.9,
+  );
+}
 void deselectAll() => sheetCont.deselectAll();
 void toggleSelection(int num) => sheetCont.toggleSelection(num);
-
 void addImage(int num, String title) => sheetCont.addSheet(
   Sheet(num: num, title: title, globalKey: GlobalKey(),),
 );
-void delImage(int num) => sheetCont.delSheet(num);
-
+void delImage(int num) {
+  sheetCont.delSheet(num);
+  displayCenterUploadButton = sheetCont.sheets.isEmpty;
+}
 void focusSheet(int num) {
   Scrollable.ensureVisible(
     sheetCont.getDataWhere(num).globalKey!.currentContext!,
@@ -50,7 +60,6 @@ void focusSheet(int num) {
 /// widgets
 
 // logo
-
 class Logo extends StatefulWidget {
   const Logo(
     this.firstText,
@@ -66,7 +75,6 @@ class Logo extends StatefulWidget {
   @override
   State<Logo> createState() => _LogoState();
 }
-
 class _LogoState extends State<Logo> {
   List<Shadow>? getShadow() => widget.shadowing ? [
     const Shadow(
@@ -100,7 +108,6 @@ class _LogoState extends State<Logo> {
 }
 
 // pin
-
 class PinWidget extends StatelessWidget {
   const PinWidget(this.pin, {Key? key}) : super(key: key) ;
 
@@ -175,7 +182,6 @@ void popUp(String title, String content, VoidCallback onConfirm) {
     ),
   );
 }
-
 void titlePopUp(VoidCallback? onConfirm) {
   Get.defaultDialog(
     title: '악보 제목',

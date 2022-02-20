@@ -10,6 +10,7 @@ import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 import 'package:image_picker/image_picker.dart';
 
+bool displayCenterUploadButton = true;
 
 void uploadImage(String title) {
   int num = sheetCont.maxNum + 1;
@@ -67,7 +68,9 @@ class SheetModificationPageState extends State<SheetModificationPage> {
         children: [
           SheetScrollView(isLeader: widget.isLeader),
           PinWidget(pin.pin),
+          if (sheetCont.sheets.isNotEmpty)
           const SideButton(direction: 'left'),
+          if (sheetCont.sheets.isNotEmpty)
           const SideButton(direction: 'right'),
           Positioned(
             right: 0,
@@ -78,7 +81,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
               isLeader: widget.isLeader,
             ),
           ),
-          if (widget.isLeader && sheetCont.sheets.isEmpty)
+          if (widget.isLeader && displayCenterUploadButton)
           Positioned(
             child: Center(
               child: Column(
@@ -104,11 +107,11 @@ class SheetModificationPageState extends State<SheetModificationPage> {
 
                         if (image == null) return;
                         titlePopUp(() async {
+                          setState(() => displayCenterUploadButton = false);
                           Get.back();
                           uploadImage(titleController.text);
-                          titleController.text = '';
                           await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
-                          setState(() {});
+                          setState(() => titleController.text = '');
                         });
                       },
                       child: Icon(
@@ -219,11 +222,11 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
 
             if (image == null) return;
             titlePopUp(() async {
+              parent!.setState(() => displayCenterUploadButton = false);
               Get.back();
               uploadImage(titleController.text);
-              titleController.text = '';
               await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
-              parent!.setState(() {});
+              parent.setState(() => titleController.text = '');
             });
           },
         ),
@@ -257,33 +260,37 @@ class _SideButtonState extends State<SideButton> {
 
   void buttonPressed() {
     List<int> _numbers = sheetCont.getNumbers();
+    int _index = 0;
 
-    if (widget.direction == 'left' && currentScrollNum > 0) {
-      focusSheet(_numbers[(currentScrollNum - 1) * 2]);
+    if (widget.direction == 'left') {
+      if (currentScrollNum < 1) return;
+      _index = verticalMode ? currentScrollNum - 1 : (currentScrollNum - 1) * 2;
     }
 
-    if (widget.direction == 'right' && _numbers.length > 1 &&
-        _numbers[currentScrollNum + 1] < _numbers.length / 2) {
-      focusSheet(sheetCont.getNumbers()[(currentScrollNum + 1) * 2]);
+    else if (widget.direction == 'right') {
+      int times = verticalMode ? 1 : 2;
+      if (_numbers.length <= (currentScrollNum + 1) * times) return;
+      _index = (currentScrollNum + 1) * times;
     }
+
+    focusSheet(_numbers[_index]);
   }
 
   @override
   Widget build(BuildContext context) {
-
     SheetModificationPageState? parent = context
         .findAncestorStateOfType<SheetModificationPageState>();
 
+    setVariables();
     screenSize = MediaQuery.of(context).size;
-    final sideButtonWidth = screenSize.width * 0.1;
-    final sideButtonHeight = screenSize.height * 0.9;
+    final sideButtonSize = Size(screenSize.width * 0.1, screenHeightWithoutAppbar);
 
     return Positioned(
       left: widget.direction == 'left' ? 0 : null,
       right: widget.direction == 'right' ? 0 : null,
       bottom: 0,
-      width: sideButtonWidth,
-      height: sideButtonHeight,
+      width: sideButtonSize.width,
+      height: sideButtonSize.height,
       child: GestureDetector(
         onTap: () => parent!.setState(() => buttonPressed()),
         onTapDown: (details) => setState(() => buttonDown = true),

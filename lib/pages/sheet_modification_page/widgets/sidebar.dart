@@ -29,7 +29,13 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   List<Widget> _tiles = [];
   List<int> orderList = [];
-  double marginHorizontal = 10.0;
+  late bool isVertical;
+
+  @override
+  void initState() {
+    super.initState();
+    isVertical = verticalMode;
+  }
 
   void dataReorder(List<int> orderList) {
     List<Sheet> _orderData = [];
@@ -109,7 +115,7 @@ class _SidebarState extends State<Sidebar> {
 
     final leaderWrap = ReorderableWrap(
       spacing: 8.0,
-      runSpacing: 4.0,
+      runSpacing: 8.0,
       padding: const EdgeInsets.all(8),
       children: _tiles,
       onReorder: _onReorder,
@@ -120,12 +126,15 @@ class _SidebarState extends State<Sidebar> {
       children: sidebarMusicSheets(),
     );
 
-    return Drawer(
-      child: Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.only(top: 40.0),
-        child: SingleChildScrollView(
-          child: widget.isLeader ? leaderWrap : userWrap,
+    return SizedBox(
+      width: verticalMode ? 200 : 300,
+      child: Drawer(
+        child: Container(
+          alignment: Alignment.topCenter,
+          padding: const EdgeInsets.only(top: 40.0),
+          child: SingleChildScrollView(
+            child: widget.isLeader ? leaderWrap : userWrap,
+          ),
         ),
       ),
     );
@@ -136,28 +145,41 @@ class _SidebarState extends State<Sidebar> {
 List<Widget> sidebarMusicSheets() {
   final List<Widget> _list = [];
 
-  for (int i = 0; i < (sheetCont.sheets.length - 1) / 2; i++) {
-    _list.add(
-      ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SidebarMusicSheetWidget(sheet: sheetCont.sheets[2 * i]),
-            const SizedBox(width: 10.0),
-            SidebarMusicSheetWidget(sheet: sheetCont.sheets[2 * i + 1]),
-          ],
+  if (verticalMode) {
+    for (int i = 0; i < sheetCont.sheets.length; i++) {
+      _list.add(
+        ListTile(
+          title: SidebarMusicSheetWidget(
+            sheet: sheetCont.sheets[i],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
-  if (sheetCont.sheets.length % 2 == 1) {
-    _list.add(
-      ListTile(
-        title: SidebarMusicSheetWidget(
-          sheet: sheetCont.sheets.last,
+  else {
+    for (int i = 0; i < (sheetCont.sheets.length - 1) / 2; i++) {
+      _list.add(
+        ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SidebarMusicSheetWidget(sheet: sheetCont.sheets[2 * i]),
+              const SizedBox(width: 10.0),
+              SidebarMusicSheetWidget(sheet: sheetCont.sheets[2 * i + 1]),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
+    if (sheetCont.sheets.length % 2 == 1) {
+      _list.add(
+        ListTile(
+          title: SidebarMusicSheetWidget(
+            sheet: sheetCont.sheets.last,
+          ),
+        ),
+      );
+    }
   }
 
   return _list;
@@ -175,7 +197,8 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    SheetModificationPageState? parent = context.findAncestorStateOfType<SheetModificationPageState>();
+    SheetModificationPageState? parent = context
+        .findAncestorStateOfType<SheetModificationPageState>();
     final Sheet sheet = widget.sheet;
 
     return GestureDetector(

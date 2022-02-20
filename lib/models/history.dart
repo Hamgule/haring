@@ -5,36 +5,37 @@ import 'package:haring4/models/dot.dart';
 class History {
 
   static const int stackLimit = 100;
-  static const List<List<Dot>> noHistory = [];
+  static const List<dynamic> noHistory = [];
 
-  List<List<List<Dot>>> lineStack = [[]];
+  List<List<dynamic>> stack = [[]];
   int pivot = 0;
 
-  void increasePivot() => pivot = min(lineStack.length - 1, pivot + 1);
+  void increasePivot() => pivot = min(stack.length - 1, pivot + 1);
   void decreasePivot() => pivot = max(0, pivot - 1);
 
-  void addHistory(List<List<Dot>> state) {
-    if (pivot + 1 < lineStack.length) {
-      lineStack.removeRange(pivot + 1, lineStack.length);
+  void addHistory(List<dynamic> state) {
+    if (pivot + 1 < stack.length) {
+      stack.removeRange(pivot + 1, stack.length);
     }
-    lineStack.add([...state]);
+    stack.add([...state]);
 
-    if (lineStack.length > stackLimit) {
-      lineStack.removeAt(0);
+    if (stack.length > stackLimit) {
+      stack.removeAt(0);
+      stack.removeAt(0);
       return;
     }
 
     pivot++;
   }
 
-  List<List<Dot>> getPast() {
+  List<dynamic> getPast() {
     decreasePivot();
-    return lineStack[pivot];
+    return stack[pivot];
   }
 
-  List<List<Dot>> getFuture() {
+  List<dynamic> getFuture() {
     increasePivot();
-    return lineStack[pivot];
+    return stack[pivot];
   }
 
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring4/models/data_storage.dart';
 import 'package:haring4/models/dot.dart';
+import 'package:haring4/models/painter.dart';
 import 'package:haring4/models/sheet.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,18 +20,20 @@ class SheetController extends GetxController {
   final RxInt _selectedNum = (-1).obs;
   final RxInt _maxNum = (-1).obs;
   final RxBool _isCreate = false.obs;
-
+  final RxBool _addCompleted = true.obs;
 
   // getters
   Sheet getDataWhere(int num) => sheets.where((sheet) => sheet.num == num).first;
   int get selectedNum => _selectedNum.value;
   int get maxNum => _maxNum.value;
   bool get isCreate => _isCreate.value;
+  bool get addCompleted => _addCompleted.value;
 
   // setters
   void setSelectedNum(int selectedNum) => _selectedNum(selectedNum);
   void setMaxNum(int maxNum) => _selectedNum(maxNum);
   void setIsCreate(bool isCreate) => _isCreate(isCreate);
+  void setAddCompleted(bool addCompleted) => _addCompleted(addCompleted);
 
   // json
   Map<String, Object?> toJson() {
@@ -39,7 +42,7 @@ class SheetController extends GetxController {
     for (Sheet sheet in sheets) {
       List<Object?> lineList = [];
 
-      for (List<Dot> line in sheet.paint.lines) {
+      for (List<Dot> line in sheet.paint.allLines) {
         List<Object?> dotList = [];
 
         for (Dot dot in line) {
@@ -52,6 +55,7 @@ class SheetController extends GetxController {
 
         lineList.add({'line': dotList,});
       }
+
       sheetList.add({
         'num': sheet.num,
         'title': sheet.title,

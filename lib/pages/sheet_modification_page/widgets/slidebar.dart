@@ -37,7 +37,7 @@ class _SlideBarState extends State<SlideBar>
   void initState() {
     _act = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
     )
       ..addListener(() {
         if (!mounted) return;
@@ -102,6 +102,7 @@ class _SlideBarState extends State<SlideBar>
       if (widget.isLeader)
         IconButton(
           onPressed: () => setState(() {
+            if (sheetCont.selectedNum < 0) return;
             sheetCont.getDataWhere(
               sheetCont.selectedNum,
             ).paint.setEraseMode(false);
@@ -273,7 +274,7 @@ class _SlideBarState extends State<SlideBar>
     ];
 
     _anim = Tween<double>(
-      begin: MediaQuery.of(context).size.width * 0.885,
+      begin: MediaQuery.of(context).size.width * (verticalMode ? 0.82 : 0.87),
       end: 0,
     ).animate(_act!);
 

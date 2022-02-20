@@ -6,12 +6,18 @@ import 'package:haring4/models/history.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
 
+class LineInfo {
+ List<Dot> tempLine;
+ DateTime genTime = DateTime.now();
+
+ LineInfo({required this.tempLine,});
+}
+
 class Painter {
 
   // variables
+  List<LineInfo> lineInfos = [];
   List<List<Dot>> lines = [];
-  List<DateTime> genTimes = [];
-  List<bool> isTemps = [];
   final histories = History();
 
   double _size = 2.0;
@@ -19,6 +25,16 @@ class Painter {
   bool _eraseMode = false;
 
   // getters
+  List<List<Dot>> get allLines {
+    List<List<Dot>> _lines = [];
+    for (List<Dot> line in lines) {
+      _lines.add(line);
+    }
+    for (LineInfo lineInfo in lineInfos) {
+      _lines.add(lineInfo.tempLine);
+    }
+    return _lines;
+  }
   double get size => _size;
   Color get color => _color;
   bool get eraseMode => _eraseMode;
@@ -30,40 +46,41 @@ class Painter {
 
   // methods
   void drawStart(Offset offset) {
-    List<Dot> line = [];
-    line.add(Dot(
+    List<Dot> _line = [];
+    _line.add(Dot(
       offset: Offset(offset.dx, offset.dy),
       color: painterCont.color,
       size: painterCont.size,
     ));
-    lines.add(line);
+
+    tempMode ? lineInfos.add(LineInfo(tempLine: _line)) :
+    lines.add(_line);
   }
 
   void drawing(Offset offset) {
-    lines.last.add(Dot(
+    Dot _dot = Dot(
       offset: Offset(offset.dx, offset.dy),
       color: painterCont.color,
       size: painterCont.size,
-    ));
+    );
+    tempMode ? lineInfos.last.tempLine.add(_dot) :
+    lines.last.add(_dot);
   }
 
   void drawEnd() {
-    if (!tempMode) histories.addHistory(lines);
-    genTimes.add(DateTime.now());
-    isTemps.add(tempMode);
+    !tempMode ? histories.addHistory(lines) :
+    lineInfos.last.genTime = DateTime.now();
   }
 
   void erase(Offset offset) {
     const eraserSize = 15.0;
 
-    for (int i = 0; i < lines.length; i++) {
-      if (isTemps[i]) continue;
-      for (Dot dot in lines[i]) {
-        if (sqrt(pow(offset.dx * imageWidth - dot.offset.dx * imageWidth, 2)
-            + pow(offset.dy * imageHeight - dot.offset.dy * imageHeight, 2)) < eraserSize) {
-          genTimes.removeAt(i);
-          isTemps.removeAt(i);
-          lines.removeAt(i);
+    for (int i = lines.length; i > 0; i--) {
+      for (Dot dot in lines[i - 1]) {
+        if (sqrt(pow(offset.dx * imageSize.width - dot.offset.dx * imageSize.width, 2)
+            + pow(offset.dy * imageSize.height - dot.offset.dy * imageSize.height, 2)) < eraserSize) {
+          lines.remove(lines[i - 1]);
+          histories.addHistory(lines);
           break;
         }
       }
@@ -71,31 +88,24 @@ class Painter {
   }
 
   void eraseAll() {
-    for (int i = lines.length; i > 0; i--) {
-      if (isTemps[i - 1]) continue;
-      genTimes.removeAt(i - 1);
-      isTemps.removeAt(i - 1);
-      lines.removeAt(i - 1);
-    }
+    lines = [];
     if (!tempMode) histories.addHistory(lines);
   }
 
   void undo() {
-    List<List<Dot>> _past = histories.getPast();
+    List<dynamic> _past = histories.getPast();
     lines = [..._past];
   }
   void redo() {
-    List<List<Dot>> _future = histories.getFuture();
+    List<dynamic> _future = histories.getFuture();
     lines = [..._future];
   }
 
   void removeOlderLine(int seconds) {
-    for (int i = 0; i < genTimes.length; i++) {
-      if (isTemps[i] && DateTime.now().difference(genTimes[i]).inSeconds >= seconds) {
-        genTimes.removeAt(i);
-        isTemps.removeAt(i);
-        lines.removeAt(i);
-      }
+    for (int i = lineInfos.length; i > 0; i--) {
+      if (DateTime.now()
+          .difference(lineInfos[i - 1].genTime)
+          .inSeconds >= seconds) lineInfos.remove(lineInfos[i - 1]);
     }
   }
 

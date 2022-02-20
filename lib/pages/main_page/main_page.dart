@@ -5,6 +5,7 @@ import 'package:haring4/config/palette.dart';
 import 'package:haring4/pages/_global/globals.dart';
 import 'package:haring4/pages/join_page/join_page.dart';
 import 'package:haring4/pages/sheet_modification_page/leader_page.dart';
+import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _MainPageState extends State<MainPage> {
                         pin.savePinDB();
                         Get.back();
                         Get.to(() => const LeaderPage());
+                        displayCenterUploadButton = sheetCont.sheets.isEmpty;
                       });
                     },
                     child: Text(
