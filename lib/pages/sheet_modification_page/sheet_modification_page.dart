@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/sidebar.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/sidebar.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/slidebar.dart';
 import 'package:image_picker/image_picker.dart';
 
 bool displayCenterUploadButton = true;

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:haring4/models/painter.dart';
+import 'package:haring/models/painter.dart';
 
 class Sheet {
   int num;

@@ -4,11 +4,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring4/models/data_storage.dart';
-import 'package:haring4/models/dot.dart';
-import 'package:haring4/models/painter.dart';
-import 'package:haring4/models/sheet.dart';
-import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring/models/data_storage.dart';
+import 'package:haring/models/dot.dart';
+import 'package:haring/models/painter.dart';
+import 'package:haring/models/sheet.dart';
+import 'package:haring/pages/_global/globals.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SheetController extends GetxController {

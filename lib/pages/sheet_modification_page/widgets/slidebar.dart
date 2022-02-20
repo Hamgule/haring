@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
 
 bool eraseMode = false;
 bool tempMode = false;

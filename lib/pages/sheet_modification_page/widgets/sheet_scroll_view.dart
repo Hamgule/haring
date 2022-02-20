@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/models/sheet.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/painter.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/models/sheet.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/painter.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/slidebar.dart';
 
 class SheetScrollView extends StatefulWidget {
   const SheetScrollView({Key? key, required this.isLeader}) : super(key: key);

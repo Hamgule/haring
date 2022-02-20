@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/join_page/join_page.dart';
-import 'package:haring4/pages/sheet_modification_page/leader_page.dart';
-import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/join_page/join_page.dart';
+import 'package:haring/pages/sheet_modification_page/leader_page.dart';
+import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -47,14 +47,14 @@ class _MainPageState extends State<MainPage> {
                     child: Text(
                       'create',
                       style: TextStyle(
-                        color: Palette().themeColor1,
+                        color: Palette().themeColor2,
                         fontFamily: 'MontserratRegular',
                         fontSize: 20.0,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                        color: Palette().themeColor1,
+                        color: Palette().themeColor2,
                         style: BorderStyle.solid,
                         width: 2.0,
                       ),
@@ -75,14 +75,14 @@ class _MainPageState extends State<MainPage> {
                     child: Text(
                       'join',
                       style: TextStyle(
-                        color: Palette().themeColor2,
+                        color: Palette().themeColor1,
                         fontFamily: 'MontserratRegular',
                         fontSize: 20.0,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                        color: Palette().themeColor2,
+                        color: Palette().themeColor1,
                         style: BorderStyle.solid,
                         width: 2.0,
                       ),

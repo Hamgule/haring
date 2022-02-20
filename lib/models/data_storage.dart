@@ -1,4 +1,4 @@
-import 'package:haring4/models/painter.dart';
+import 'package:haring/models/painter.dart';
 
 class DataStorage {
   int num;

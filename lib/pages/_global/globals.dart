@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/controllers/painter_controller.dart';
-import 'package:haring4/controllers/sheet_controller.dart';
-import 'package:haring4/controllers/sidebar_controller.dart';
-import 'package:haring4/models/pin.dart';
-import 'package:haring4/models/sheet.dart';
-import 'package:haring4/pages/sheet_modification_page/sheet_modification_page.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/controllers/painter_controller.dart';
+import 'package:haring/controllers/sheet_controller.dart';
+import 'package:haring/controllers/sidebar_controller.dart';
+import 'package:haring/models/pin.dart';
+import 'package:haring/models/sheet.dart';
+import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
 
 /// variables
 
@@ -100,8 +100,8 @@ class _LogoState extends State<Logo> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        logo(widget.firstText, Palette().themeColor1),
-        logo(widget.secondText, Palette().themeColor2),
+        logo(widget.firstText, Palette().themeColor2),
+        logo(widget.secondText, Palette().themeColor1),
       ],
     );
   }

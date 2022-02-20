@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:haring4/models/dot.dart';
-import 'package:haring4/models/history.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/sheet_modification_page/widgets/slidebar.dart';
+import 'package:haring/models/dot.dart';
+import 'package:haring/models/history.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/sheet_modification_page/widgets/slidebar.dart';
 
 class LineInfo {
  List<Dot> tempLine;

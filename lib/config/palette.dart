@@ -1,5 +1,5 @@
 import 'package:flutter/painting.dart';
-import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring/pages/_global/globals.dart';
 
 class Palette {
   static const Color deactiveColor = Color(0xffaaaaaa);

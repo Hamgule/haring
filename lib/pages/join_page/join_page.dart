@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring4/config/palette.dart';
-import 'package:haring4/pages/_global/globals.dart';
-import 'package:haring4/pages/sheet_modification_page/user_page.dart';
+import 'package:haring/config/palette.dart';
+import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/sheet_modification_page/user_page.dart';
 
 class JoinPage extends StatefulWidget {
   const JoinPage({Key? key}) : super(key: key);

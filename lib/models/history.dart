@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:haring4/models/dot.dart';
+import 'package:haring/models/dot.dart';
 
 class History {
 

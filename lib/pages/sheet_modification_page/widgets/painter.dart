@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:haring4/models/dot.dart';
-import 'package:haring4/pages/_global/globals.dart';
+import 'package:haring/models/dot.dart';
+import 'package:haring/pages/_global/globals.dart';
 
 class MyPainter extends CustomPainter {
 
