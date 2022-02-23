@@ -16,16 +16,22 @@ final sidebarCont = Get.put(SidebarController());
 final scrollCont = ScrollController();
 final titleController = TextEditingController();
 final pin = Pin();
+final palette = Palette();
 
 int clicks = 0;
 int currentScrollNum = 0;
-bool verticalMode = false;
+double stdPadRatio = 1180.0 / 820.0;
+double stdCellRatio = 844.0 / 390.0;
+double scale = 1.0;
 
-const int isRed = 10;
+const int redCount = 10;
 const removeSec = 5;
 const containerRatio = 3 / 4;
 
+late bool verticalMode;
+late bool isPad;
 late double screenHeightWithoutAppbar;
+
 late Size screenSize;
 late Size appbarSize;
 late Size sheetSize;
@@ -77,8 +83,8 @@ class Logo extends StatefulWidget {
 }
 class _LogoState extends State<Logo> {
   List<Shadow>? getShadow() => widget.shadowing ? [
-    const Shadow(
-      offset: Offset(5.0, 5.0),
+    Shadow(
+      offset: Offset(5.0 * scale, 5.0 * scale,),
       blurRadius: 10.0,
       color: Colors.black38,
     ),
@@ -89,7 +95,7 @@ class _LogoState extends State<Logo> {
     style: TextStyle(
       color: color,
       fontFamily: 'MontserratBold',
-      fontSize: 150.0,
+      fontSize: isPad ? 150.0 : 80.0,
       fontWeight: FontWeight.bold,
       shadows: getShadow(),
     ),
@@ -100,8 +106,8 @@ class _LogoState extends State<Logo> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        logo(widget.firstText, Palette().themeColor2),
-        logo(widget.secondText, Palette().themeColor1),
+        logo(widget.firstText, palette.themeColor2),
+        logo(widget.secondText, palette.themeColor1),
       ],
     );
   }
@@ -118,7 +124,7 @@ class PinWidget extends StatelessWidget {
     style: TextStyle(
       color: color,
       fontFamily: 'MontserratBold',
-      fontSize: 40.0,
+      fontSize: 40.0 * scale,
       fontWeight: FontWeight.bold,
     ),
   );
@@ -126,18 +132,18 @@ class PinWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: 0,
-      bottom: 0,
+      left: 10 * scale,
+      bottom: 15 * scale,
       child: Container(
-        margin: const EdgeInsets.symmetric(
-          vertical: 5.0,
-          horizontal: 20.0,
+        margin: EdgeInsets.symmetric(
+          vertical: 5.0 * scale,
+          horizontal: 20.0 * scale,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            pinWidget('PIN ', Palette().themeColor1),
-            pinWidget(pin, Palette().themeColor2),
+            pinWidget('PIN ', palette.themeColor1),
+            pinWidget(pin, palette.themeColor2),
           ],
         ),
       ),
@@ -156,7 +162,7 @@ void popUp(String title, String content, VoidCallback onConfirm) {
         Container(
           height: 80.0,
           decoration: BoxDecoration(
-            color: Palette().themeColor1.withOpacity(.1),
+            color: palette.themeColor1.withOpacity(.1),
           ),
           child: Center(
               child: Text(content, textAlign: TextAlign.center,),
@@ -171,7 +177,7 @@ void popUp(String title, String content, VoidCallback onConfirm) {
                 child: Text(
                   '확인',
                   style: TextStyle(
-                    color: Palette().themeColor1,
+                    color: palette.themeColor1,
                   ),
                 ),
               ),
@@ -192,7 +198,7 @@ void titlePopUp(VoidCallback? onConfirm) {
         Container(
           height: 80.0,
           decoration: BoxDecoration(
-            color: Palette().themeColor1.withOpacity(.1),
+            color: palette.themeColor1.withOpacity(.1),
           ),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -203,7 +209,7 @@ void titlePopUp(VoidCallback? onConfirm) {
                 decoration: InputDecoration(
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
-                      color: Palette().themeColor1,
+                      color: palette.themeColor1,
                       width: 2.0,
                     ),
                   ),
@@ -212,7 +218,7 @@ void titlePopUp(VoidCallback? onConfirm) {
                   fontSize: 20.0,
                   fontFamily: 'MontserratRegular',
                   fontFamilyFallback: const ['OneMobileTitle'],
-                  color: Palette().themeColor1,
+                  color: palette.themeColor1,
                 ),
               ),
             ),
@@ -227,7 +233,7 @@ void titlePopUp(VoidCallback? onConfirm) {
                 child: Text(
                   '확인',
                   style: TextStyle(
-                    color: Palette().themeColor1,
+                    color: palette.themeColor1,
                   ),
                 ),
               ),

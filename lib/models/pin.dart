@@ -3,16 +3,16 @@ import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 
 class Pin {
+  static const double lucky = 10000;
   static const int max = 999999;
   static const int min = 000000;
+  static const String luckyPin = '777777';
 
   String pin = '000000';
   DateTime genTime = DateTime.now();
 
   Map<String, Object?> toJson() => {
-    pin: {
-      'genTime': genTime.toString(),
-    }
+    pin: {'genTime': genTime.toString(),}
   };
 
   void savePinDB() async {
@@ -24,14 +24,14 @@ class Pin {
     }
   }
 
-  void generatePin() async {
+  Future generatePin() async {
     do {
+      int _range = max - min;
+      int _randPin = min + Random().nextInt((_range + lucky).round());
       pin = (
-          min + Random().nextInt(max - min)
+        _randPin > _range ? luckyPin : _randPin
       ).toString().padLeft(6, '0');
     } while (await isIn(pin));
-
-
   }
 
   void removePin() async {

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring/config/palette.dart';
 import 'package:haring/models/sheet.dart';
 import 'package:haring/pages/_global/globals.dart';
 import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
@@ -124,9 +123,6 @@ class SheetScrollViewState extends State<SheetScrollView> {
   @override
   Widget build(BuildContext context) {
 
-    screenSize = MediaQuery.of(context).size;
-    appbarSize = AppBar().preferredSize;
-
     return OrientationBuilder(
       builder: (context, orientation) {
         verticalMode = Orientation.portrait == orientation;
@@ -189,14 +185,22 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
     appbarSize = AppBar().preferredSize;
 
     setVariables();
-    imageSize = Size(sheetSize.width - 20.0, sheetSize.width / containerRatio);
+
+    imageSize = !isPad && !verticalMode ?
+    Size(sheetSize.height * containerRatio, sheetSize.height - 20.0) :
+    Size(sheetSize.width - 20.0, sheetSize.width / containerRatio);
+
+    Offset correction = !isPad && !verticalMode ?
+    Offset((sheetSize.width - imageSize.width) / 2, 10.0) :
+    Offset(10.0, (sheetSize.height - imageSize.height) / 2);
+
     double marginHeight = screenHeightWithoutAppbar * 0.04;
     double titleHeight = screenHeightWithoutAppbar * 0.040;
 
     void tapEnd() {
-      if (eraseMode || !sheet.isSelected) return;
+      if (!sheet.isSelected) return;
       if (widget.isLeader) {
-        sheet.paint.drawEnd();
+        if (!eraseMode) sheet.paint.drawEnd();
         sheetCont.updateDB();
 
         Timer(
@@ -251,7 +255,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     Widget imageFile(File image) => Center(
       child: Container(
-        margin: const EdgeInsets.all(8.0),
+        margin: EdgeInsets.all(15.0 * scale),
         width: imageSize.width,
         height: imageSize.height,
         decoration: const BoxDecoration(
@@ -266,7 +270,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     Widget imageNetwork(String imageUrl) => Center(
       child: Container(
-        margin: const EdgeInsets.all(8.0),
+        margin: EdgeInsets.all(15.0 * scale),
         width: imageSize.width,
         height: imageSize.height,
         decoration: const BoxDecoration(
@@ -275,23 +279,14 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
         child: Image.network(
           imageUrl,
           fit: BoxFit.contain,
-          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null ?
-                loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null,
-              ),
-            );
-          }
         ),
       ),
     );
 
     Offset translateOffset(double dx, double dy) {
       double _tdx = dx, _tdy = dy;
-      _tdx -= 8.0;
-      _tdy -= (sheetSize.height - imageSize.height) / 2;
+      _tdx -= correction.dx;
+      _tdy -= correction.dy;
       _tdx /= imageSize.width;
       _tdy /= imageSize.height;
 
@@ -302,11 +297,6 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
       children: [
         Container(
           child: GestureDetector(
-            onDoubleTap: () => parent!.setState(() {
-              toggleSelection(sheet.num);
-              if (widget.isLeader) { sheet.paint.setEraseMode(eraseMode); }
-              else { sheet.privatePaint.setEraseMode(eraseMode); }
-            }),
             onPanDown: (details) => parent!.setState(() => tapStart(
               translateOffset(details.localPosition.dx, details.localPosition.dy),
             )),
@@ -322,12 +312,12 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
               key: sheet.globalKey,
               decoration: BoxDecoration(
                 color: sheet.isSelected ?
-                Palette().themeColor1.withOpacity(.3) :
+                palette.themeColor1.withOpacity(.3) :
                 Colors.grey.withOpacity(.3),
                 border: Border.all(
-                  width: 3.0,
+                  width: 3.0 * scale,
                   color: sheet.isSelected ?
-                  Palette().themeColor1 : Colors.transparent,
+                  palette.themeColor1 : Colors.transparent,
                 ),
               ),
               child: Stack(
@@ -366,7 +356,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                     ),
                   ),
                   AnimatedPositioned(
-                    top: sheet.isSelected ? 0 : -50,
+                    top: sheet.isSelected ? 0 : -50 * scale,
                     duration: const Duration(milliseconds: 250),
                     child: GestureDetector(
                       onTap: () {
@@ -382,7 +372,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                         duration: const Duration(milliseconds: 250),
                         width: sheetSize.width,
                         height: titleHeight,
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        padding: EdgeInsets.symmetric(horizontal: 15.0 * scale),
                         child: AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 250),
                           child: Text(
@@ -392,8 +382,8 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                           ),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 24.0,
-                            color: sheet.isSelected ? Palette().themeColor2 : Colors.black45,
+                            fontSize: 24.0 * scale,
+                            color: sheet.isSelected ? palette.themeColor2 : Colors.black45,
                             fontFamily: 'MontserratBold',
                             fontFamilyFallback: const ['OneMobileTitle',],
                           ),
@@ -401,28 +391,41 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       ),
                     ),
                   ),
-                  if (widget.isLeader)
                   Positioned(
-                    right: 0.0,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => parent!.setState(() => delImage(sheet.num)),
-                    ),
-                  ),
-                  if ((sheet.image == null && widget.isLeader)
-                      || (sheet.imageUrl == null && !widget.isLeader))
-                  Positioned(
-                    child: Center(
-                      child: Text(
-                        '${sheet.num + 1}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(.5),
-                          fontSize: 180.0,
+                    right: 0,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            color: sheet.isSelected ?
+                            palette.themeColor1 :
+                            Colors.grey,
+                          ),
+                          onPressed: () {
+                            parent!.setState(() {
+                              toggleSelection(sheet.num);
+                              widget.isLeader ? sheet.paint.setEraseMode(eraseMode) :
+                              sheet.privatePaint.setEraseMode(eraseMode);
+                            });
+                          }
                         ),
-                      ),
+                        if (widget.isLeader)
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: sheet.isSelected ?
+                            palette.themeColor1 :
+                            Colors.grey,
+                          ),
+                          onPressed: () {
+                            popUp('주의', "정말 '${sheet.title}' 악보를\n삭제하시겠습니까?", () {
+                              Get.back();
+                              parent!.setState(() => delImage(sheet.num));
+                            });
+                          }
+                        ),
+                      ],
                     ),
                   ),
                   if ((sheet.image == null && widget.isLeader)
@@ -432,7 +435,7 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
                       builder: (context) {
                         return Center(
                           child: CircularProgressIndicator(
-                            color: Palette().themeColor1,
+                            color: palette.themeColor1,
                           ),
                         );
                       }

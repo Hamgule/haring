@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:haring/config/palette.dart';
 import 'package:haring/models/sheet.dart';
 import 'package:haring/pages/_global/globals.dart';
 import 'package:haring/pages/sheet_modification_page/sheet_modification_page.dart';
@@ -9,9 +8,9 @@ import 'package:reorderables/reorderables.dart';
 
 // Global Variables
 
-const double _fontSize = 20.0;
-const double _sheetWidth = 100.0;
-const double _sheetHeight = 130.0;
+double _fontSize = 20.0 * scale;
+double _sheetWidth = 100.0;
+double _sheetHeight = 130.0;
 
 void _toggleSelection(int num) {
   sheetCont.toggleSelection(num);
@@ -73,7 +72,7 @@ class _SidebarState extends State<Sidebar> {
           height: _sheetHeight,
           decoration: BoxDecoration(
             color: sheet.isSelected ?
-            Palette().themeColor1.withOpacity(.5) :
+            palette.themeColor1.withOpacity(.5) :
             Colors.grey.withOpacity(.5),
           ),
           duration: const Duration(milliseconds: 300),
@@ -87,7 +86,7 @@ class _SidebarState extends State<Sidebar> {
                 style: TextStyle(
                   fontSize: _fontSize,
                   color: sheet.isSelected ?
-                    Palette().themeColor2 :
+                    palette.themeColor2 :
                     Colors.black.withOpacity(.5),
                   fontFamily: 'MontserratBold',
                   fontFamilyFallback: const ['OneMobileTitle',],
@@ -127,7 +126,7 @@ class _SidebarState extends State<Sidebar> {
     );
 
     return SizedBox(
-      width: verticalMode ? 200 : 300,
+      width: verticalMode ? 200 * scale : 300 * scale,
       child: Drawer(
         child: Container(
           alignment: Alignment.topCenter,
@@ -215,7 +214,7 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
           height: _sheetHeight,
           decoration: BoxDecoration(
             color: sheet.isSelected ?
-              Palette().themeColor1.withOpacity(.5) :
+              palette.themeColor1.withOpacity(.5) :
               Colors.grey.withOpacity(.5),
           ),
           duration: const Duration(milliseconds: 300),
@@ -228,7 +227,7 @@ class _SidebarMusicSheetWidgetState extends State<SidebarMusicSheetWidget> {
                 style: TextStyle(
                   fontSize: _fontSize,
                   color: sheet.isSelected ?
-                    Palette().themeColor2 :
+                    palette.themeColor2 :
                     Colors.black.withOpacity(.5),
                   fontFamily: 'MontserratBold',
                   fontFamilyFallback: const ['OneMobileTitle',],

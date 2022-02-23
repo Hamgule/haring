@@ -26,7 +26,7 @@ class _JoinPageState extends State<JoinPage> {
     backgroundColor: Colors.white.withOpacity(0.0),
     elevation: 0.0,
     iconTheme: IconThemeData(
-      color: Palette().themeColor1,
+      color: palette.themeColor1,
     ),
     leading: IconButton(
       icon: const Icon(
@@ -38,7 +38,7 @@ class _JoinPageState extends State<JoinPage> {
 
   @override
   Widget build(BuildContext context) {
-    appbarSize = AppBar().preferredSize;
+    bool isKeyboardOn = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       appBar: myAppBar,
@@ -47,7 +47,7 @@ class _JoinPageState extends State<JoinPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Logo('ha', 'ring'),
-            const SizedBox(height: 20.0,),
+            SizedBox(height: 20.0 * scale,),
             InputForm(
               controller: pinController,
               hintText: 'PIN',
@@ -65,11 +65,12 @@ class _JoinPageState extends State<JoinPage> {
                 else {
                   if (double.tryParse(text) == null) { msg = '숫자만 사용하여 입력하세요.'; }
                   else if (text.length != 6) { msg = '6자의 PIN을 입력하세요.'; }
-                  else { msg = '\'$text\' 방이 존재하지 않습니다.'; }
+                  else { msg = "'$text' 방이 존재하지 않습니다."; }
                 }
                 popUp('PIN 오류', msg, () => Get.back());
               }
             ),
+            if (!isKeyboardOn)
             SizedBox(height: appbarSize.height),
           ],
         ),
@@ -93,42 +94,51 @@ class InputForm extends StatelessWidget {
   static const String fontFamily = 'MontserratRegular';
 
   TextStyle getTextStyle(Color color) => TextStyle(
-    fontSize: 20.0, fontFamily: fontFamily, color: color,
+    fontSize: 20.0 * scale, fontFamily: fontFamily, color: color,
   );
 
   OutlineInputBorder getInputBorder(Color color) => OutlineInputBorder(
-    borderSide: BorderSide(width: 2.0, color: color,),
+    borderSide: BorderSide(width: 2.0 * scale, color: color,),
   );
 
-  TextFormField getInputArea() => TextFormField(
-    controller: controller,
-    keyboardType: TextInputType.number,
-    decoration: InputDecoration(
-      filled: true,
-      fillColor: Colors.white.withOpacity(0.7),
-      enabledBorder: getInputBorder(Palette.deactiveColor),
-      focusedBorder: getInputBorder(Palette().themeColor1),
-      hintText: hintText,
-      hintStyle: getTextStyle(Palette.deactiveColor),
-      contentPadding: const EdgeInsets.all(15.0),
-    ),
-    style: getTextStyle(Palette().themeColor1),
-  );
-
-  OutlinedButton getButton() => OutlinedButton(
-    onPressed: onButtonPressed,
-    child: Icon(
-      Icons.arrow_forward_ios,
-      color: Palette().themeColor2,
-    ),
-    style: OutlinedButton.styleFrom(
-      side: BorderSide(
-        color: Palette().themeColor2,
-        style: BorderStyle.solid,
-        width: 2.0,
+  Widget getInputArea() => Center(
+    child: TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.7),
+        enabledBorder: getInputBorder(Palette.deactiveColor),
+        focusedBorder: getInputBorder(palette.themeColor1),
+        hintText: hintText,
+        hintStyle: getTextStyle(Palette.deactiveColor),
+        contentPadding: EdgeInsets.all(15.0 * scale),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50.0),
+      style: getTextStyle(palette.themeColor1),
+    ),
+  );
+
+  Widget getButton() => Center(
+    child: Container(
+      width: 60.0 * scale,
+      height: 60.0 * scale,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: palette.themeColor2,
+          style: BorderStyle.solid,
+          width: 2.0 * scale,
+        ),
+      ),
+      child: IconButton(
+        onPressed: onButtonPressed,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        icon: Icon(
+          Icons.arrow_forward_ios,
+          color: palette.themeColor2,
+          size: 28.0 * scale,
+        ),
       ),
     ),
   );
@@ -139,12 +149,16 @@ class InputForm extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Form(
-          child: SizedBox(width: 400.0, child: getInputArea(),),
+          child: SizedBox(
+            width: 400.0 * scale,
+            height: 60.0 * scale,
+            child: getInputArea(),
+          ),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20.0,),
-          width: 50.0,
-          height: 50.0,
+          margin: EdgeInsets.symmetric(horizontal: 20.0 * scale,),
+          width: 50.0 * scale,
+          height: 50.0 * scale,
           child: getButton(),
         ),
       ],

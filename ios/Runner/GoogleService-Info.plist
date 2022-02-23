@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.haring</string>
+	<string>com.example.haring4</string>
 	<key>PROJECT_ID</key>
 	<string>haring-c0ade</string>
 	<key>STORAGE_BUCKET</key>
@@ -30,5 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:1056819591114:ios:de2689e36c24afc63f0133</string>
+	<key>DATABASE_URL</key>
+	<string>https://haring-c0ade-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

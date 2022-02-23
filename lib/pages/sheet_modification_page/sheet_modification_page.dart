@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:haring/config/palette.dart';
 import 'package:haring/pages/_global/globals.dart';
 import 'package:haring/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
@@ -22,7 +21,6 @@ void downloadImage(int num) {
   if (num < 0) return;
   sheetCont.downloadFile(num);
 }
-
 
 class SheetModificationPage extends StatefulWidget {
   const SheetModificationPage({
@@ -48,96 +46,102 @@ class SheetModificationPageState extends State<SheetModificationPage> {
     Future<XFile?> pickImage() async {
       try {
         return await ImagePicker().pickImage(source: ImageSource.gallery);
-        // sheetCont.uploadFile(image);
       } on PlatformException catch (e) {
         print("Failed to pick image: $e");
       }
     }
 
-    void subUploadImage(String title) async {
-      uploadImage(title);
-    }
-
-    return Scaffold(
-      key: sidebarCont.scaffoldKey,
-      endDrawerEnableOpenDragGesture: false,
-      appBar: ModificationPageAppBar(
-        isLeader: widget.isLeader,
-      ),
-      body: Stack(
-        children: [
-          SheetScrollView(isLeader: widget.isLeader),
-          PinWidget(pin.pin),
-          if (sheetCont.sheets.isNotEmpty)
-          const SideButton(direction: 'left'),
-          if (sheetCont.sheets.isNotEmpty)
-          const SideButton(direction: 'right'),
-          Positioned(
-            right: 0,
-            left: 0,
-            bottom: 20.0,
-            child: SlideBar(
-              cb: (int i) => print(i),
-              isLeader: widget.isLeader,
-            ),
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        verticalMode = Orientation.portrait == orientation;
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          key: sidebarCont.scaffoldKey,
+          endDrawerEnableOpenDragGesture: false,
+          appBar: ModificationPageAppBar(
+            isLeader: widget.isLeader,
           ),
-          if (widget.isLeader && displayCenterUploadButton)
-          Positioned(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '사진을 추가하세요',
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      fontFamily: 'NanumGothicRegular',
-                      color: Palette().themeColor1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10.0,),
-                  SizedBox(
-                    width: 300.0,
-                    height: 300.0,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        titleController.text = 'sheet ${sheetCont.maxNum + 2}';
-                        XFile? image = await pickImage();
-
-                        if (image == null) return;
-                        titlePopUp(() async {
-                          setState(() => displayCenterUploadButton = false);
-                          Get.back();
-                          uploadImage(titleController.text);
-                          await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
-                          setState(() => titleController.text = '');
-                        });
-                      },
-                      child: Icon(
-                        Icons.add,
-                        size: 100.0,
-                        color: Palette().themeColor1,
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          width: 5.0,
-                          color: Palette().themeColor1,
-                          style: BorderStyle.solid,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          body: Stack(
+            children: [
+              SheetScrollView(isLeader: widget.isLeader),
+              PinWidget(pin.pin),
+              if (sheetCont.sheets.isNotEmpty)
+              const SideButton(direction: 'left'),
+              if (sheetCont.sheets.isNotEmpty)
+              const SideButton(direction: 'right'),
+              Positioned(
+                right: 0,
+                left: 0,
+                bottom: 20.0 * scale,
+                child: SlideBar(
+                  cb: (int i) => print(i),
+                  isLeader: widget.isLeader,
+                ),
               ),
-            ),
+              if (widget.isLeader && displayCenterUploadButton)
+              Positioned(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '사진을 추가하세요',
+                        style: TextStyle(
+                          fontSize: 30.0 * scale,
+                          fontFamily: 'NanumGothicRegular',
+                          color: palette.themeColor1,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10.0 * scale,),
+                      SizedBox(
+                        width: 300.0 * scale,
+                        height: 300.0 * scale,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+                            XFile? image = await pickImage();
+
+                            if (image == null) return;
+                            titlePopUp(() async {
+                              setState(() => displayCenterUploadButton = false);
+                              Get.back();
+                              uploadImage(titleController.text);
+                              await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
+                              setState(() => titleController.text = '');
+                            });
+                          },
+                          child: Icon(
+                            Icons.upload,
+                            size: 60.0 * scale,
+                            color: palette.themeColor1,
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              width: 5.0 * scale,
+                              color: palette.themeColor1,
+                              style: BorderStyle.solid,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50.0 * scale),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      endDrawer: Sidebar(isLeader: widget.isLeader),
+          endDrawer: OrientationBuilder(
+            builder: (context, orientation) {
+              verticalMode = Orientation.portrait == orientation;
+              return Sidebar(isLeader: widget.isLeader);
+            }
+          ),
+        );
+      }
     );
   }
 }
@@ -175,7 +179,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
       backgroundColor: Colors.white.withOpacity(0.0),
       elevation: 0.0,
       iconTheme: IconThemeData(
-        color: Palette().themeColor1,
+        color: palette.themeColor1,
       ),
       leading: IconButton(
         icon: const Icon(
@@ -189,6 +193,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
             '주의', msg, () {
               if (widget.isLeader) {
                 pin.removePin();
+                sheetCont.deleteAllImagesDB();
               }
               sheetCont.clearSheetData();
               Get.back();
@@ -200,7 +205,7 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
       title: Text(
         widget.isLeader ? 'LEADER' : 'TEAM',
         style: TextStyle(
-          color: Palette().themeColor1,
+          color: palette.themeColor1,
           fontFamily: 'MontserratBold',
         ),
       ),

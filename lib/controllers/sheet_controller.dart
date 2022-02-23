@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:haring/models/data_storage.dart';
 import 'package:haring/models/dot.dart';
-import 'package:haring/models/painter.dart';
 import 'package:haring/models/sheet.dart';
 import 'package:haring/pages/_global/globals.dart';
 import 'package:image_picker/image_picker.dart';
@@ -173,6 +172,10 @@ class SheetController extends GetxController {
       sheets.add(sheet);
     }
   }
+
+  void deleteAllImagesDB() =>
+      sheets.forEach((sheet) =>
+          FirebaseStorage.instance.refFromURL(sheet.imageUrl!).delete());
 
   Future uploadFile(XFile? image, int index) async {
     Reference ref = FirebaseStorage.instance
