@@ -14,7 +14,7 @@ final painterCont = Get.put(PainterController());
 final sheetCont = Get.put(SheetController());
 final sidebarCont = Get.put(SidebarController());
 final scrollCont = ScrollController();
-final titleController = TextEditingController();
+final titleCont = TextEditingController();
 final pin = Pin();
 final palette = Palette();
 
@@ -49,7 +49,11 @@ void setVariables() {
 void deselectAll() => sheetCont.deselectAll();
 void toggleSelection(int num) => sheetCont.toggleSelection(num);
 void addImage(int num, String title) => sheetCont.addSheet(
-  Sheet(num: num, title: title, globalKey: GlobalKey(),),
+  Sheet(
+    num: num,
+    title: title,
+    globalKey: GlobalKey(),
+  ),
 );
 void delImage(int num) {
   sheetCont.delSheet(num);
@@ -65,17 +69,34 @@ void focusSheet(int num) {
 
 /// widgets
 
+// appbar
+PreferredSizeWidget myAppBar(VoidCallback onPressed) => AppBar(
+  backgroundColor: Colors.white.withOpacity(0.0),
+  elevation: 0.0,
+  iconTheme: IconThemeData(
+    color: palette.themeColor1,
+  ),
+  leading: IconButton(
+    icon: const Icon(
+      Icons.arrow_back_ios,
+    ),
+    onPressed: onPressed,
+  ),
+);
+
 // logo
 class Logo extends StatefulWidget {
   const Logo(
     this.firstText,
     this.secondText, {
     Key? key,
+    this.isSmall = false,
     this.shadowing = true,
   }) : super(key: key) ;
 
   final String firstText;
   final String secondText;
+  final bool isSmall;
   final bool shadowing;
 
   @override
@@ -95,7 +116,7 @@ class _LogoState extends State<Logo> {
     style: TextStyle(
       color: color,
       fontFamily: 'MontserratBold',
-      fontSize: isPad ? 150.0 : 80.0,
+      fontSize: widget.isSmall ? isPad ? 60.0 : 30.0 : isPad ? 150.0 : 80.0,
       fontWeight: FontWeight.bold,
       shadows: getShadow(),
     ),
@@ -204,7 +225,7 @@ void titlePopUp(VoidCallback? onConfirm) {
             margin: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Center(
               child: TextFormField(
-                controller: titleController,
+                controller: titleCont,
                 autofocus: true,
                 decoration: InputDecoration(
                   focusedBorder: UnderlineInputBorder(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:haring/pages/_global/globals.dart';
+import 'package:haring/pages/capture_page/capture_page.dart';
 import 'package:haring/pages/sheet_modification_page/widgets/sidebar.dart';
 import 'package:haring/pages/sheet_modification_page/widgets/sheet_scroll_view.dart';
 import 'package:haring/pages/sheet_modification_page/widgets/slidebar.dart';
@@ -17,9 +18,12 @@ void uploadImage(String title) {
   sheetCont.setIsCreate(true);
 }
 
-void downloadImage(int num) {
+void captureImage(int num, bool isLeader) {
   if (num < 0) return;
-  sheetCont.downloadFile(num);
+  Get.to(() => CapturePage(
+    isLeader: isLeader,
+    sheet: sheetCont.getDataWhere(num),
+  ));
 }
 
 class SheetModificationPage extends StatefulWidget {
@@ -88,7 +92,7 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                         '사진을 추가하세요',
                         style: TextStyle(
                           fontSize: 30.0 * scale,
-                          fontFamily: 'NanumGothicRegular',
+                          fontFamily: 'OneMobileTitle',
                           color: palette.themeColor1,
                           fontWeight: FontWeight.bold,
                         ),
@@ -99,16 +103,16 @@ class SheetModificationPageState extends State<SheetModificationPage> {
                         height: 300.0 * scale,
                         child: OutlinedButton(
                           onPressed: () async {
-                            titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+                            titleCont.text = 'sheet ${sheetCont.maxNum + 2}';
                             XFile? image = await pickImage();
 
                             if (image == null) return;
                             titlePopUp(() async {
                               setState(() => displayCenterUploadButton = false);
                               Get.back();
-                              uploadImage(titleController.text);
+                              uploadImage(titleCont.text);
                               await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
-                              setState(() => titleController.text = '');
+                              setState(() => titleCont.text = '');
                             });
                           },
                           child: Icon(
@@ -169,7 +173,6 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
     Future<XFile?> pickImage() async {
       try {
         return await ImagePicker().pickImage(source: ImageSource.gallery);
-        // sheetCont.uploadFile(image);
       } on PlatformException catch (e) {
         print("Failed to pick image: $e");
       }
@@ -212,9 +215,9 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
       actions: [
         IconButton(
           icon: Icon(
-            sheetCont.selectedNum < 0
-                ? Icons.check_box_outline_blank
-                : Icons.check_box,
+            sheetCont.selectedNum < 0 ?
+            Icons.check_box_outline_blank :
+            Icons.check_box,
           ),
           onPressed: () => parent!.setState(() => deselectAll()),
         ),
@@ -222,22 +225,22 @@ class _ModificationPageAppBarState extends State<ModificationPageAppBar> {
         IconButton(
           icon: const Icon(Icons.upload,),
           onPressed: () async {
-            titleController.text = 'sheet ${sheetCont.maxNum + 2}';
+            titleCont.text = 'sheet ${sheetCont.maxNum + 2}';
             XFile? image = await pickImage();
 
             if (image == null) return;
             titlePopUp(() async {
               parent!.setState(() => displayCenterUploadButton = false);
               Get.back();
-              uploadImage(titleController.text);
+              uploadImage(titleCont.text);
               await sheetCont.uploadFile(image, sheetCont.sheets.length - 1);
-              parent.setState(() => titleController.text = '');
+              parent.setState(() => titleCont.text = '');
             });
           },
         ),
         IconButton(
-          icon: const Icon(Icons.download,),
-          onPressed: () => parent!.setState(() => downloadImage(sheetCont.selectedNum)),
+          icon: const Icon(Icons.camera_alt),
+          onPressed: () => captureImage(sheetCont.selectedNum, widget.isLeader),
         ),
         IconButton(
           icon: const Icon(Icons.view_sidebar,),

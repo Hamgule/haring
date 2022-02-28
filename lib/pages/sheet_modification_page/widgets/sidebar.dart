@@ -80,9 +80,8 @@ class _SidebarState extends State<Sidebar> {
             child: Container(
               padding: const EdgeInsets.all(7.0),
               child: Text(
-                sheet.title.length < 16 ?
-                sheet.title :
-                sheet.title.substring(0, 15) + '...',
+                sheet.title,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: _fontSize,
                   color: sheet.isSelected ?

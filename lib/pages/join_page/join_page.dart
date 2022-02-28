@@ -21,32 +21,17 @@ class _JoinPageState extends State<JoinPage> {
     super.initState();
   }
 
-// appbar
-  PreferredSizeWidget myAppBar = AppBar(
-    backgroundColor: Colors.white.withOpacity(0.0),
-    elevation: 0.0,
-    iconTheme: IconThemeData(
-      color: palette.themeColor1,
-    ),
-    leading: IconButton(
-      icon: const Icon(
-        Icons.arrow_back_ios,
-      ),
-      onPressed: () => Get.back(),
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     bool isKeyboardOn = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
-      appBar: myAppBar,
+      appBar: myAppBar(() => Get.back()),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Logo('ha', 'ring'),
+            Logo('ha', 'ring', isSmall: isKeyboardOn,),
             SizedBox(height: 20.0 * scale,),
             InputForm(
               controller: pinController,
@@ -70,7 +55,6 @@ class _JoinPageState extends State<JoinPage> {
                 popUp('PIN 오류', msg, () => Get.back());
               }
             ),
-            if (!isKeyboardOn)
             SizedBox(height: appbarSize.height),
           ],
         ),

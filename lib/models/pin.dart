@@ -9,13 +9,12 @@ class Pin {
   static const String luckyPin = '777777';
 
   String pin = '000000';
-  DateTime genTime = DateTime.now();
 
   Map<String, Object?> toJson() => {
-    pin: {'genTime': genTime.toString(),}
+    pin: {'genTime': DateTime.now().toString(),}
   };
 
-  void savePinDB() async {
+  Future savePinDB() async {
     final f = FirebaseDatabase.instance.ref('pins');
     DatabaseEvent event = await f.child(pin).once();
 

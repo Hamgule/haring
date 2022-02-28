@@ -20,14 +20,15 @@ class SheetScrollView extends StatefulWidget {
 }
 
 class SheetScrollViewState extends State<SheetScrollView> {
+  late DatabaseReference f;
 
-  Future loadOnceDB(DatabaseReference f) async {
-    DatabaseEvent event = await f.once();
+  Future loadOnceDB() async {
+    DatabaseEvent event = await f.child('/sheets/').once();
     sheetCont.subLoadDB(event);
   }
 
-  Future loadRealDB(DatabaseReference f) async {
-    Stream<DatabaseEvent> stream = f.onValue;
+  Future loadRealDB() async {
+    Stream<DatabaseEvent> stream = f.child('/sheets/').onValue;
 
     stream.listen((event) {
       setState(() {
@@ -38,18 +39,19 @@ class SheetScrollViewState extends State<SheetScrollView> {
       });
     });
 
-    await whenPinDeleted();
+    whenPinDeleted();
   }
 
-  Future whenPinDeleted() async {
-    DatabaseReference f = FirebaseDatabase.instance.ref('pins/${pin.pin}');
+  void whenPinDeleted() {
     Stream<DatabaseEvent> stream = f.onValue;
     stream.listen((event) {
       if (event.snapshot.value == null) {
-        setState(() => popUp(
-          '경고', '리더가 방을 닫았습니다.\n메인 화면으로 이동합니다.',
-          () { Get.back(); Get.back(); Get.back(); },
-        ));
+        setState(() {
+          popUp(
+            '경고', '리더가 방을 닫았습니다.\n메인 화면으로 이동합니다.',
+            () { Get.back(); Get.back(); Get.back(); }
+          );
+        });
       }
     });
   }
@@ -57,15 +59,9 @@ class SheetScrollViewState extends State<SheetScrollView> {
   @override
   void initState() {
     super.initState();
-
-    final f = FirebaseDatabase.instance.ref('pins/${pin.pin}/sheets');
-    widget.isLeader ? loadOnceDB(f) : loadRealDB(f);
+    f = FirebaseDatabase.instance.ref('pins/${pin.pin}');
+    widget.isLeader ? loadOnceDB() : loadRealDB();
     scrollCont.addListener(() => scrollListener());
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   List<Widget> musicSheets(bool isLeader) {
@@ -122,7 +118,6 @@ class SheetScrollViewState extends State<SheetScrollView> {
 
   @override
   Widget build(BuildContext context) {
-
     return OrientationBuilder(
       builder: (context, orientation) {
         verticalMode = Orientation.portrait == orientation;
@@ -145,6 +140,37 @@ class SheetScrollViewState extends State<SheetScrollView> {
   }
 
 }
+
+
+Widget imageFile(File image) => Center(
+  child: Container(
+    margin: EdgeInsets.all(15.0 * scale),
+    width: imageSize.width,
+    height: imageSize.height,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+    ),
+    child: Image.file(
+      image,
+      fit: BoxFit.contain,
+    ),
+  ),
+);
+
+Widget imageNetwork(String imageUrl) => Center(
+  child: Container(
+    margin: EdgeInsets.all(15.0 * scale),
+    width: imageSize.width,
+    height: imageSize.height,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+    ),
+    child: Image.network(
+      imageUrl,
+      fit: BoxFit.contain,
+    ),
+  ),
+);
 
 class MusicSheetWidget extends StatefulWidget {
   const MusicSheetWidget({
@@ -253,36 +279,6 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
       }
     }
 
-    Widget imageFile(File image) => Center(
-      child: Container(
-        margin: EdgeInsets.all(15.0 * scale),
-        width: imageSize.width,
-        height: imageSize.height,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Image.file(
-          image,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-
-    Widget imageNetwork(String imageUrl) => Center(
-      child: Container(
-        margin: EdgeInsets.all(15.0 * scale),
-        width: imageSize.width,
-        height: imageSize.height,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-
     Offset translateOffset(double dx, double dy) {
       double _tdx = dx, _tdy = dy;
       _tdx -= correction.dx;
@@ -295,154 +291,147 @@ class _MusicSheetWidgetState extends State<MusicSheetWidget> {
 
     return Column(
       children: [
-        Container(
-          child: GestureDetector(
-            onPanDown: (details) => parent!.setState(() => tapStart(
-              translateOffset(details.localPosition.dx, details.localPosition.dy),
-            )),
-            onPanUpdate: (details) => parent!.setState(() => tapUpdate(
-              translateOffset(details.localPosition.dx, details.localPosition.dy),
-            )),
-            onPanEnd: (details) => parent!.setState(() => tapEnd()),
-            child: AnimatedContainer(
-              margin: EdgeInsets.fromLTRB(0, 0, 0, marginHeight),
-              duration: const Duration(milliseconds: 250),
-              width: sheetSize.width,
-              height: sheetSize.height,
-              key: sheet.globalKey,
-              decoration: BoxDecoration(
+        GestureDetector(
+          onPanDown: (details) => parent!.setState(() => tapStart(
+            translateOffset(details.localPosition.dx, details.localPosition.dy),
+          )),
+          onPanUpdate: (details) => parent!.setState(() => tapUpdate(
+            translateOffset(details.localPosition.dx, details.localPosition.dy),
+          )),
+          onPanEnd: (details) => parent!.setState(() => tapEnd()),
+          child: AnimatedContainer(
+            margin: EdgeInsets.fromLTRB(0, 0, 0, marginHeight),
+            duration: const Duration(milliseconds: 250),
+            width: sheetSize.width,
+            height: sheetSize.height,
+            key: sheet.globalKey,
+            decoration: BoxDecoration(
+              color: sheet.isSelected ?
+              palette.themeColor1.withOpacity(.3) :
+              Colors.grey.withOpacity(.3),
+              border: Border.all(
+                width: 3.0 * scale,
                 color: sheet.isSelected ?
-                palette.themeColor1.withOpacity(.3) :
-                Colors.grey.withOpacity(.3),
-                border: Border.all(
-                  width: 3.0 * scale,
-                  color: sheet.isSelected ?
-                  palette.themeColor1 : Colors.transparent,
+                palette.themeColor1 : Colors.transparent,
+              ),
+            ),
+            child: Stack(
+              children: [
+                if (widget.isLeader && sheet.image != null)
+                Positioned(child: imageFile(sheet.image!),),
+                if (!widget.isLeader && sheet.imageUrl != null)
+                Positioned(child: imageNetwork(sheet.imageUrl!),),
+                Positioned(
+                  child: Center(
+                    child: SizedBox(
+                      width: imageSize.width,
+                      height: imageSize.height,
+                      child: ClipRRect(
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.paint.allLines,),
+                              ),
+                            ),
+                            if (!widget.isLeader)
+                            Positioned(
+                              child: CustomPaint(
+                                painter: MyPainter(sheet.privatePaint.allLines,),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: Stack(
-                children: [
-                  if (widget.isLeader && sheet.image != null)
-                  Positioned(
-                    child: imageFile(sheet.image!),
-                  ),
-                  if (!widget.isLeader && sheet.imageUrl != null)
-                  Positioned(
-                    child: imageNetwork(sheet.imageUrl!),
-                  ),
-                  Positioned(
-                    child: Center(
-                      child: SizedBox(
-                        width: imageSize.width,
-                        height: imageSize.height,
-                        child: ClipRRect(
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                child: CustomPaint(
-                                  painter: MyPainter(sheet.paint.allLines,),
-                                ),
-                              ),
-                              if (!widget.isLeader)
-                              Positioned(
-                                child: CustomPaint(
-                                  painter: MyPainter(sheet.privatePaint.allLines,),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  AnimatedPositioned(
-                    top: sheet.isSelected ? 0 : -50 * scale,
-                    duration: const Duration(milliseconds: 250),
-                    child: GestureDetector(
-                      onTap: () {
-                        titleController.text = sheet.title;
-                        titlePopUp(() {
-                          Get.back();
-                          setState(() => sheet.title = titleController.text);
-                          sheetCont.updateDB();
-                          titleController.text = '';
-                        });
-                      },
-                      child: AnimatedContainer(
+                AnimatedPositioned(
+                  top: sheet.isSelected ? 0 : -50 * scale,
+                  duration: const Duration(milliseconds: 250),
+                  child: GestureDetector(
+                    onTap: () {
+                      titleCont.text = sheet.title;
+                      titlePopUp(() {
+                        Get.back();
+                        setState(() => sheet.title = titleCont.text);
+                        sheetCont.updateDB();
+                        titleCont.text = '';
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      width: sheetSize.width,
+                      height: titleHeight,
+                      padding: EdgeInsets.symmetric(horizontal: 15.0 * scale),
+                      child: AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 250),
-                        width: sheetSize.width,
-                        height: titleHeight,
-                        padding: EdgeInsets.symmetric(horizontal: 15.0 * scale),
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 250),
-                          child: Text(
-                            sheet.title.length < 16 ?
-                            sheet.title :
-                            sheet.title.substring(0, 15) + '...',
-                          ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.0 * scale,
-                            color: sheet.isSelected ? palette.themeColor2 : Colors.black45,
-                            fontFamily: 'MontserratBold',
-                            fontFamilyFallback: const ['OneMobileTitle',],
-                          ),
+                        child: Text(
+                          sheet.title,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0 * scale,
+                          color: sheet.isSelected ? palette.themeColor2 : Colors.black45,
+                          fontFamily: 'MontserratBold',
+                          fontFamilyFallback: const ['OneMobileTitle',],
                         ),
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: sheet.isSelected ?
-                            palette.themeColor1 :
-                            Colors.grey,
-                          ),
-                          onPressed: () {
-                            parent!.setState(() {
-                              toggleSelection(sheet.num);
-                              widget.isLeader ? sheet.paint.setEraseMode(eraseMode) :
-                              sheet.privatePaint.setEraseMode(eraseMode);
-                            });
-                          }
+                ),
+                Positioned(
+                  right: 0,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: sheet.isSelected ?
+                          palette.themeColor1 :
+                          Colors.grey,
                         ),
-                        if (widget.isLeader)
-                        IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            color: sheet.isSelected ?
-                            palette.themeColor1 :
-                            Colors.grey,
-                          ),
-                          onPressed: () {
-                            popUp('주의', "정말 '${sheet.title}' 악보를\n삭제하시겠습니까?", () {
-                              Get.back();
-                              parent!.setState(() => delImage(sheet.num));
-                            });
-                          }
+                        onPressed: () {
+                          parent!.setState(() {
+                            toggleSelection(sheet.num);
+                            widget.isLeader ? sheet.paint.setEraseMode(eraseMode) :
+                            sheet.privatePaint.setEraseMode(eraseMode);
+                          });
+                        }
+                      ),
+                      if (widget.isLeader)
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: sheet.isSelected ?
+                          palette.themeColor1 :
+                          Colors.grey,
                         ),
-                      ],
-                    ),
+                        onPressed: () {
+                          popUp('주의', "정말 '${sheet.title}' 악보를\n삭제하시겠습니까?", () {
+                            Get.back();
+                            parent!.setState(() => delImage(sheet.num));
+                          });
+                        }
+                      ),
+                    ],
                   ),
-                  if ((sheet.image == null && widget.isLeader)
-                      || (sheet.imageUrl == null && !widget.isLeader))
-                  Positioned(
-                    child: Builder(
-                      builder: (context) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: palette.themeColor1,
-                          ),
-                        );
-                      }
-                    ),
+                ),
+                if ((sheet.image == null && widget.isLeader)
+                    || (sheet.imageUrl == null && !widget.isLeader))
+                Positioned(
+                  child: Builder(
+                    builder: (context) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: palette.themeColor1,
+                        ),
+                      );
+                    }
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

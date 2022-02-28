@@ -189,7 +189,6 @@ class SheetController extends GetxController {
 
   void downloadFile(int num) {
     Sheet sheet = getDataWhere(num);
-
   }
 }
 

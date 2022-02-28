@@ -46,8 +46,9 @@ class _MainPageState extends State<MainPage> {
 
   Future whenCreatePressed() async {
     await pin.generatePin();
-    popUp('방 입장', 'PIN: ${pin.pin}\n정말 입장하시겠습니까?', () {
-      pin.savePinDB();
+    popUp('방 입장', 'PIN: ${pin.pin}\n정말 입장하시겠습니까?', () async {
+      sheetCont.sheets([]);
+      await pin.savePinDB();
       Get.back();
       Get.to(() => const LeaderPage());
       displayCenterUploadButton = sheetCont.sheets.isEmpty;
